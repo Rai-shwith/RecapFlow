@@ -7,6 +7,7 @@ import os
 import smtplib
 import logging
 import time
+import re
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from typing import List
@@ -17,6 +18,52 @@ logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
+
+def markdown_to_html(text):
+    """
+    Convert basic markdown to HTML for email rendering
+    """
+    if not text:
+        return ""
+    
+    # Convert markdown to HTML
+    html = text
+    
+    # Headers
+    html = re.sub(r'^### (.*$)', r'<h3>\1</h3>', html, flags=re.MULTILINE)
+    html = re.sub(r'^## (.*$)', r'<h2>\1</h2>', html, flags=re.MULTILINE)
+    html = re.sub(r'^# (.*$)', r'<h1>\1</h1>', html, flags=re.MULTILINE)
+    
+    # Bold and italic
+    html = re.sub(r'\*\*(.*?)\*\*', r'<strong>\1</strong>', html)
+    html = re.sub(r'\*(.*?)\*', r'<em>\1</em>', html)
+    
+    # Code (inline)
+    html = re.sub(r'`(.*?)`', r'<code style="background-color: #f1f1f1; padding: 2px 4px; border-radius: 3px;">\1</code>', html)
+    
+    # Unordered lists
+    lines = html.split('\n')
+    in_list = False
+    result_lines = []
+    
+    for line in lines:
+        line = line.strip()
+        if line.startswith('- ') or line.startswith('* ') or line.startswith('+ '):
+            if not in_list:
+                result_lines.append('<ul>')
+                in_list = True
+            result_lines.append(f'<li>{line[2:]}</li>')
+        else:
+            if in_list:
+                result_lines.append('</ul>')
+                in_list = False
+            if line:  # Only add non-empty lines
+                result_lines.append(f'<p>{line}</p>')
+    
+    if in_list:
+        result_lines.append('</ul>')
+    
+    return '\n'.join(result_lines)
 
 class RecapFlowEmailer:
     """
@@ -124,6 +171,9 @@ class RecapFlowEmailer:
         """
         logger.debug(f"Creating email body - summary: {len(summary)} chars, transcript: {'included' if original_transcript else 'not included'}")
         
+        # Convert markdown summary to HTML
+        summary_html = markdown_to_html(summary)
+        
         html = f"""
         <!DOCTYPE html>
         <html>
@@ -135,6 +185,10 @@ class RecapFlowEmailer:
                 .summary {{ background-color: #F3F4F6; padding: 15px; border-radius: 5px; margin: 15px 0; }}
                 .footer {{ background-color: #E5E7EB; padding: 10px; text-align: center; font-size: 12px; }}
                 .transcript {{ background-color: #F9FAFB; padding: 15px; border-radius: 5px; margin-top: 20px; max-height: 300px; overflow-y: auto; }}
+                h1, h2, h3 {{ margin-top: 0; margin-bottom: 10px; }}
+                ul {{ margin: 10px 0; padding-left: 20px; }}
+                li {{ margin: 5px 0; }}
+                p {{ margin: 10px 0; }}
             </style>
         </head>
         <body>
@@ -146,7 +200,7 @@ class RecapFlowEmailer:
             <div class="content">
                 <h2>Summary</h2>
                 <div class="summary">
-                    {summary.replace(chr(10), '<br>')}
+                    {summary_html}
                 </div>
                 
                 {self._add_transcript_section(original_transcript) if original_transcript else ''}
