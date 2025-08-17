@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import logging
 import sys
 from datetime import datetime
+import os
 
 # Import routes and lifespan
 from routes import router, lifespan
@@ -30,7 +31,7 @@ logger.info("🚀 Starting RecapFlow API server...")
 # Configure CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite dev server default port
+    allow_origins=[os.getenv("FRONTEND_URL", "http://localhost:3000")],  # Vite dev server default port
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -57,5 +58,5 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    logger.info("🔥 Starting uvicorn server on http://0.0.0.0:8000")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    logger.info("🔥 Starting uvicorn server")
+    uvicorn.run(app, host=os.getenv("HOST", "0.0.0.0"), port=int(os.getenv("PORT", 8000)))
