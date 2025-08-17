@@ -4,6 +4,22 @@ import { colors } from '../../utils/colors'
 import { LoadingButton } from '../LoadingComponents'
 import EmailInput from '../EmailInput'
 import SummaryViewer from '../SummaryViewer'
+import { 
+  MdEmail, 
+  MdSubject, 
+  MdAttachment, 
+  MdPerson, 
+  MdEdit, 
+  MdPreview, 
+  MdSave, 
+  MdClose,
+  MdArrowBack,
+  MdSend,
+  MdBusiness,
+  MdWork,
+  MdPhone,
+  MdCheckCircle
+} from 'react-icons/md'
 
 const EmailStep = ({ 
   emailRecipients, 
@@ -31,6 +47,19 @@ const EmailStep = ({
     phone: ''
   })
 
+  // Load saved data from localStorage on component mount
+  React.useEffect(() => {
+    // Load saved sender details
+    const savedSenderDetails = localStorage.getItem('recapflow_sender_details')
+    if (savedSenderDetails) {
+      try {
+        setSenderDetails(JSON.parse(savedSenderDetails))
+      } catch (e) {
+        console.error('Error loading sender details from localStorage:', e)
+      }
+    }
+  }, [])
+
   // Initialize editable email content when summary changes
   React.useEffect(() => {
     if (summary) {
@@ -39,18 +68,67 @@ const EmailStep = ({
   }, [summary])
 
   const handleSenderDetailsChange = (field, value) => {
-    setSenderDetails(prev => ({
-      ...prev,
+    const updatedDetails = {
+      ...senderDetails,
       [field]: value
-    }))
+    }
+    setSenderDetails(updatedDetails)
+    
+    // Save to localStorage immediately when editing in the main form
+    if (isEditingEmail) {
+      saveSenderDetailsToStorage(updatedDetails)
+    }
+  }
+
+  // Save sender details to localStorage whenever they change
+  const saveSenderDetailsToStorage = (details) => {
+    try {
+      localStorage.setItem('recapflow_sender_details', JSON.stringify(details))
+    } catch (e) {
+      console.error('Error saving sender details to localStorage:', e)
+    }
+  }
+
+  // Save recipients to localStorage
+  const saveRecipientsToStorage = (recipients) => {
+    try {
+      const savedRecipients = JSON.parse(localStorage.getItem('recapflow_recipients') || '[]')
+      // Add new recipients to the saved list, avoiding duplicates
+      const updatedRecipients = [...new Set([...savedRecipients, ...recipients])]
+      localStorage.setItem('recapflow_recipients', JSON.stringify(updatedRecipients))
+    } catch (e) {
+      console.error('Error saving recipients to localStorage:', e)
+    }
+  }
+
+  // Get saved recipients from localStorage
+  const getSavedRecipients = () => {
+    try {
+      return JSON.parse(localStorage.getItem('recapflow_recipients') || '[]')
+    } catch (e) {
+      console.error('Error loading recipients from localStorage:', e)
+      return []
+    }
   }
 
   const handleSaveSenderDetails = () => {
     setIncludeSenderDetails(true)
     setShowSenderPopup(false)
+    // Save to localStorage whenever details are saved
+    saveSenderDetailsToStorage(senderDetails)
   }
 
   const handleSendEmail = () => {
+    // Save recipients to localStorage
+    if (emailRecipients.length > 0) {
+      saveRecipientsToStorage(emailRecipients)
+    }
+    
+    // Save sender details if they are included and modified
+    if (includeSenderDetails) {
+      saveSenderDetailsToStorage(senderDetails)
+    }
+    
     // Prepare email content without sender details (backend will handle them separately)
     const emailContent = editableEmailContent || summary
     
@@ -77,18 +155,20 @@ const EmailStep = ({
   return (
     <div className="space-y-6">
       <h2 
-        className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-center"
+        className="text-xl sm:text-2xl font-semibold mb-4 sm:mb-6 text-center flex items-center justify-center gap-3"
         style={{ color: colors.darkPurple }}
       >
+        <MdEmail className="text-2xl sm:text-3xl" />
         Send Summary via Email
       </h2>
 
       {/* Email Recipients */}
       <div>
         <label 
-          className="block text-sm font-medium mb-2"
+          className="flex items-center gap-2 text-sm font-medium mb-2"
           style={{ color: colors.darkBrown }}
         >
+          <MdEmail className="text-lg" />
           Recipients:
         </label>
         <EmailInput
@@ -101,9 +181,10 @@ const EmailStep = ({
       {/* Email Subject */}
       <div>
         <label 
-          className="block text-sm font-medium mb-2"
+          className="flex items-center gap-2 text-sm font-medium mb-2"
           style={{ color: colors.darkBrown }}
         >
+          <MdSubject className="text-lg" />
           Subject:
         </label>
         <input
@@ -134,9 +215,10 @@ const EmailStep = ({
         />
         <label 
           htmlFor="includeTranscript"
-          className="text-sm font-medium cursor-pointer"
+          className="text-sm font-medium cursor-pointer flex items-center gap-2"
           style={{ color: colors.darkBrown }}
         >
+          <MdAttachment className="text-lg" />
           Include original transcript in email
         </label>
       </div>
@@ -149,16 +231,25 @@ const EmailStep = ({
           checked={includeSenderDetails}
           onChange={(e) => {
             if (e.target.checked) {
+              // Auto-populate from localStorage if available
+              const savedSenderDetails = localStorage.getItem('recapflow_sender_details')
+              if (savedSenderDetails) {
+                try {
+                  const parsedDetails = JSON.parse(savedSenderDetails)
+                  setSenderDetails(parsedDetails)
+                  setIncludeSenderDetails(true)
+                  // If details exist, don't show popup
+                  if (parsedDetails.name || parsedDetails.email) {
+                    return
+                  }
+                } catch (e) {
+                  console.error('Error loading sender details:', e)
+                }
+              }
               setShowSenderPopup(true)
             } else {
               setIncludeSenderDetails(false)
-              setSenderDetails({
-                name: '',
-                company: '',
-                position: '',
-                email: '',
-                phone: ''
-              })
+              // Don't clear the details, just uncheck - keep them for next time
             }
           }}
           className="w-4 h-4 rounded focus:ring-2"
@@ -169,22 +260,33 @@ const EmailStep = ({
         />
         <label 
           htmlFor="includeSenderDetails"
-          className="text-sm font-medium cursor-pointer"
+          className="text-sm font-medium cursor-pointer flex items-center gap-2"
           style={{ color: colors.darkBrown }}
         >
+          <MdPerson className="text-lg" />
           Include sender details in email
         </label>
         {includeSenderDetails && (
           <button
             onClick={() => setShowSenderPopup(true)}
-            className="text-xs px-2 py-1 rounded transition-all duration-200 hover:shadow-sm"
+            className="text-xs px-2 py-1 rounded transition-all duration-200 hover:shadow-sm flex items-center gap-1"
             style={{ 
               backgroundColor: colors.beige,
               color: colors.darkPurple
             }}
           >
+            <MdEdit className="text-sm" />
             Edit Details
           </button>
+        )}
+        {includeSenderDetails && senderDetails.name && (
+          <span 
+            className="text-xs px-2 py-1 rounded bg-green-100 text-green-700 flex items-center gap-1"
+            title="Sender details saved to localStorage"
+          >
+            <MdCheckCircle className="text-sm" />
+            Saved
+          </span>
         )}
       </div>
 
@@ -200,23 +302,40 @@ const EmailStep = ({
           <div className="flex gap-2">
             <button
               onClick={() => setIsEditingEmail(!isEditingEmail)}
-              className="text-xs px-3 py-1 rounded transition-all duration-200 hover:shadow-sm"
+              className="text-xs px-3 py-1 rounded transition-all duration-200 hover:shadow-sm flex items-center gap-1"
               style={{ 
                 backgroundColor: isEditingEmail ? colors.gold : colors.beige,
                 color: colors.darkPurple
               }}
             >
-              {isEditingEmail ? 'Preview Mode' : 'Edit Email'}
+              {isEditingEmail ? (
+                <>
+                  <MdPreview className="text-sm" />
+                  Preview Mode
+                </>
+              ) : (
+                <>
+                  <MdEdit className="text-sm" />
+                  Edit Email
+                </>
+              )}
             </button>
             {isEditingEmail && (
               <button
-                onClick={handleSaveEmailEdit}
-                className="text-xs px-3 py-1 rounded transition-all duration-200 hover:shadow-sm"
+                onClick={() => {
+                  setIsEditingEmail(false)
+                  // Save sender details when exiting edit mode
+                  if (includeSenderDetails) {
+                    saveSenderDetailsToStorage(senderDetails)
+                  }
+                }}
+                className="text-xs px-3 py-1 rounded transition-all duration-200 hover:shadow-sm flex items-center gap-1"
                 style={{ 
                   backgroundColor: colors.darkBrown,
                   color: 'white'
                 }}
               >
+                <MdSave className="text-sm" />
                 Save Changes
               </button>
             )}
@@ -309,6 +428,17 @@ const EmailStep = ({
                       '--tw-ring-color': `${colors.gold}40`
                     }}
                   />
+                  <input
+                    type="tel"
+                    placeholder="Phone (Optional)"
+                    value={senderDetails.phone}
+                    onChange={(e) => handleSenderDetailsChange('phone', e.target.value)}
+                    className="p-2 border rounded text-sm focus:outline-none focus:ring-2"
+                    style={{ 
+                      borderColor: colors.beige,
+                      '--tw-ring-color': `${colors.gold}40`
+                    }}
+                  />
                 </div>
               </div>
             )}
@@ -387,24 +517,26 @@ const EmailStep = ({
         <button
           onClick={onPrevious}
           disabled={loading}
-          className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-md disabled:opacity-50 text-sm sm:text-base order-2 sm:order-1"
+          className="px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all duration-200 hover:shadow-md disabled:opacity-50 text-sm sm:text-base order-2 sm:order-1 flex items-center justify-center gap-2"
           style={{ 
             backgroundColor: colors.beige,
             color: colors.darkPurple
           }}
         >
+          <MdArrowBack className="text-lg" />
           Back
         </button>
         <LoadingButton
           onClick={handleSendEmail}
           loading={loading}
           disabled={emailRecipients.length === 0}
-          className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base order-1 sm:order-2"
+          className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base order-1 sm:order-2 flex items-center justify-center gap-2"
           style={{ 
             backgroundColor: emailRecipients.length > 0 ? colors.darkBrown : colors.beige,
             color: 'white'
           }}
         >
+          <MdSend className="text-lg" />
           <span className="hidden sm:inline">{`Send Email${emailRecipients.length > 1 ? `s (${emailRecipients.length})` : ''}`}</span>
           <span className="sm:hidden">Send</span>
         </LoadingButton>
@@ -420,22 +552,24 @@ const EmailStep = ({
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 
-                  className="text-lg font-semibold"
+                  className="text-lg font-semibold flex items-center gap-2"
                   style={{ color: colors.darkPurple }}
                 >
+                  <MdPerson className="text-xl" />
                   Add Sender Details
                 </h3>
                 <button
                   onClick={() => setShowSenderPopup(false)}
-                  className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+                  className="text-gray-400 hover:text-gray-600 text-xl font-bold transition-colors"
                 >
-                  ×
+                  <MdClose />
                 </button>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: colors.darkBrown }}>
+                  <label className="flex items-center gap-2 text-sm font-medium mb-2" style={{ color: colors.darkBrown }}>
+                    <MdPerson className="text-lg" />
                     Your Name
                   </label>
                   <input
@@ -452,7 +586,8 @@ const EmailStep = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: colors.darkBrown }}>
+                  <label className="flex items-center gap-2 text-sm font-medium mb-2" style={{ color: colors.darkBrown }}>
+                    <MdBusiness className="text-lg" />
                     Company
                   </label>
                   <input
@@ -469,7 +604,8 @@ const EmailStep = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: colors.darkBrown }}>
+                  <label className="flex items-center gap-2 text-sm font-medium mb-2" style={{ color: colors.darkBrown }}>
+                    <MdWork className="text-lg" />
                     Position
                   </label>
                   <input
@@ -486,7 +622,8 @@ const EmailStep = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: colors.darkBrown }}>
+                  <label className="flex items-center gap-2 text-sm font-medium mb-2" style={{ color: colors.darkBrown }}>
+                    <MdEmail className="text-lg" />
                     Email
                   </label>
                   <input
@@ -503,7 +640,8 @@ const EmailStep = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: colors.darkBrown }}>
+                  <label className="flex items-center gap-2 text-sm font-medium mb-2" style={{ color: colors.darkBrown }}>
+                    <MdPhone className="text-lg" />
                     Phone (Optional)
                   </label>
                   <input

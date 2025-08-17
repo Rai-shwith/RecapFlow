@@ -1,6 +1,13 @@
 import React, { useCallback } from 'react'
 import { colors } from '../../utils/colors'
 import { LoadingButton } from '../LoadingComponents'
+import { 
+  MdUpload, 
+  MdCloudUpload, 
+  MdDescription, 
+  MdArrowForward,
+  MdArrowBack 
+} from 'react-icons/md'
 
 const UploadStep = ({ 
   onFileUpload, 

@@ -13,6 +13,16 @@ import EmailStep from './components/steps/EmailStep'
 import { colors } from './utils/colors'
 import { markdownToPlainText, plainTextToMarkdown } from './utils/markdown'
 
+// Icons
+import { 
+  MdError, 
+  MdCheckCircle, 
+  MdClose, 
+  MdArrowBack, 
+  MdArrowForward,
+  MdAutoGraph
+} from 'react-icons/md'
+
 // Alert Message Component
 const AlertMessage = ({ type, message, onClose }) => (
   <div className={`mb-6 border rounded-lg px-4 py-3 flex items-center gap-2 ${
@@ -20,20 +30,17 @@ const AlertMessage = ({ type, message, onClose }) => (
       ? 'bg-red-50 border-red-200 text-red-700' 
       : 'bg-green-50 border-green-200 text-green-700'
   }`}>
-    <svg className={`w-5 h-5 ${type === 'error' ? 'text-red-500' : 'text-green-500'}`} 
-         fill="currentColor" viewBox="0 0 20 20">
-      {type === 'error' ? (
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-      ) : (
-        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-      )}
-    </svg>
+    {type === 'error' ? (
+      <MdError className="w-5 h-5 text-red-500" />
+    ) : (
+      <MdCheckCircle className="w-5 h-5 text-green-500" />
+    )}
     <span className="flex-1">{message}</span>
     <button 
       onClick={onClose}
-      className={`${type === 'error' ? 'text-red-400 hover:text-red-600' : 'text-green-400 hover:text-green-600'} font-bold`}
+      className={`${type === 'error' ? 'text-red-400 hover:text-red-600' : 'text-green-400 hover:text-green-600'} transition-colors`}
     >
-      ×
+      <MdClose className="w-4 h-4" />
     </button>
   </div>
 )
@@ -46,20 +53,22 @@ const QuickNavigation = ({ currentStep, steps, onPrevious, onNext, loading }) =>
       disabled={currentStep === 0}
       variant="secondary"
       loading={false}
-      className="px-3 sm:px-4 py-2 text-sm sm:text-base"
+      className="px-3 sm:px-4 py-2 text-sm sm:text-base flex items-center gap-2"
     >
-      <span className="hidden sm:inline">← Previous</span>
-      <span className="sm:hidden">← Back</span>
+      <MdArrowBack className="text-lg" />
+      <span className="hidden sm:inline">Previous</span>
+      <span className="sm:hidden">Back</span>
     </LoadingButton>
     <LoadingButton
       onClick={onNext}
       disabled={currentStep === steps.length - 1}
       variant="primary"
       loading={loading}
-      className="px-3 sm:px-4 py-2 text-sm sm:text-base"
+      className="px-3 sm:px-4 py-2 text-sm sm:text-base flex items-center gap-2"
     >
-      <span className="hidden sm:inline">Next →</span>
-      <span className="sm:hidden">Next →</span>
+      <span className="hidden sm:inline">Next</span>
+      <span className="sm:hidden">Next</span>
+      <MdArrowForward className="text-lg" />
     </LoadingButton>
   </div>
 )
@@ -204,7 +213,8 @@ function App() {
       <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         {/* Header */}
         <div className="text-center mb-8 sm:mb-12">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 flex items-center justify-center gap-3">
+            <MdAutoGraph className="text-4xl sm:text-5xl text-blue-600" />
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               RecapFlow
             </span>

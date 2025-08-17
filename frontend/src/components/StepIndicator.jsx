@@ -1,5 +1,19 @@
 import React from 'react'
 import { colors } from '../utils/colors'
+import { 
+  MdUpload, 
+  MdAutoAwesome, 
+  MdEdit, 
+  MdEmail,
+  MdCheck 
+} from 'react-icons/md'
+
+const stepIcons = {
+  'Upload': MdUpload,
+  'Summarize': MdAutoAwesome,
+  'Edit': MdEdit,
+  'Email': MdEmail
+}
 
 const StepIndicator = ({ steps, currentStep, onStepClick }) => (
   <div className="mb-8">
@@ -20,33 +34,35 @@ const StepIndicator = ({ steps, currentStep, onStepClick }) => (
       
       {/* Step Indicators */}
       <div className="flex items-center justify-between">
-        {steps.map((step, index) => (
-          <div key={step} className="flex flex-col items-center">
-            <button
-              onClick={() => onStepClick && onStepClick(index)}
-              className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold transition-all duration-300 hover:scale-105 ${
-                index <= currentStep ? 'shadow-lg' : 'opacity-50'
-              } ${onStepClick ? 'cursor-pointer' : 'cursor-default'}`}
-              style={{ 
-                backgroundColor: index <= currentStep ? colors.darkBrown : colors.beige 
-              }}
-            >
-              {index < currentStep ? (
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              ) : (
-                index + 1
-              )}
-            </button>
-            <span 
-              className={`mt-2 text-sm font-medium ${index <= currentStep ? 'opacity-100' : 'opacity-50'}`}
-              style={{ color: colors.darkPurple }}
-            >
-              {step}
-            </span>
-          </div>
-        ))}
+        {steps.map((step, index) => {
+          const IconComponent = stepIcons[step] || MdCheck
+          return (
+            <div key={step} className="flex flex-col items-center">
+              <button
+                onClick={() => onStepClick && onStepClick(index)}
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold transition-all duration-300 hover:scale-105 ${
+                  index <= currentStep ? 'shadow-lg' : 'opacity-50'
+                } ${onStepClick ? 'cursor-pointer' : 'cursor-default'}`}
+                style={{ 
+                  backgroundColor: index <= currentStep ? colors.darkBrown : colors.beige
+                }}
+                disabled={!onStepClick}
+              >
+                {index < currentStep ? (
+                  <MdCheck className="text-lg" />
+                ) : (
+                  <IconComponent className="text-lg" />
+                )}
+              </button>
+              <span 
+                className={`mt-2 text-sm font-medium ${index <= currentStep ? 'opacity-100' : 'opacity-50'}`}
+                style={{ color: colors.darkPurple }}
+              >
+                {step}
+              </span>
+            </div>
+          )
+        })}
       </div>
     </div>
 
