@@ -419,7 +419,7 @@ function App() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-gray-500 text-sm">
-          <p>© 2024 RecapFlow • Built with ❤️ for better meetings</p>
+          <p>Built with ❤️ for better meetings by <a href="https://github.com/Rai-shwith" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 transition-colors underline">Rai-shwith</a></p>
         </div>
       </div>
       <Toaster />
