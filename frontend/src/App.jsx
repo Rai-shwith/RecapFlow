@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import axios from 'axios'
+import toast, { Toaster } from 'react-hot-toast'
 
 // Component imports
 import StepIndicator from './components/StepIndicator'
@@ -108,13 +109,43 @@ function App() {
     setError('')
     clearMessages()
     
+    // Show loading toast
+    const loadingToast = toast.loading('📁 Uploading file...', {
+      style: {
+        borderRadius: '10px',
+        background: colors.darkPurple,
+        color: '#fff',
+      },
+    })
+    
     try {
       const response = await axios.post(`${API_BASE}/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       })
       setTranscript(response.data.transcript)
+      
+      // Success toast
+      toast.success('📄 File uploaded successfully!', {
+        id: loadingToast,
+        style: {
+          borderRadius: '10px',
+          background: '#10B981',
+          color: '#fff',
+        },
+        duration: 3000,
+      })
       setSuccess('File uploaded successfully!')
     } catch (err) {
+      // Error toast
+      toast.error(`❌ Upload failed: ${err.response?.data?.detail || err.message}`, {
+        id: loadingToast,
+        style: {
+          borderRadius: '10px',
+          background: '#EF4444',
+          color: '#fff',
+        },
+        duration: 4000,
+      })
       setError(`Upload failed: ${err.response?.data?.detail || err.message}`)
     } finally {
       setLoading(false)
@@ -124,6 +155,14 @@ function App() {
   // Summarize transcript
   const handleSummarize = async () => {
     if (!transcript.trim()) {
+      toast.error('📝 Please provide a transcript first', {
+        style: {
+          borderRadius: '10px',
+          background: '#EF4444',
+          color: '#fff',
+        },
+        duration: 3000,
+      })
       setError('Please provide a transcript first')
       return
     }
@@ -132,6 +171,15 @@ function App() {
     setError('')
     clearMessages()
     
+    // Show loading toast
+    const loadingToast = toast.loading('🤖 AI is generating your summary...', {
+      style: {
+        borderRadius: '10px',
+        background: colors.darkPurple,
+        color: '#fff',
+      },
+    })
+    
     try {
       const response = await axios.post(`${API_BASE}/summarize`, {
         transcript,
@@ -139,8 +187,29 @@ function App() {
       })
       setSummary(response.data.summary)
       setEditableSummary(markdownToPlainText(response.data.summary))
+      
+      // Success toast
+      toast.success(`✨ Summary generated in ${response.data.processing_time?.toFixed(2)}s!`, {
+        id: loadingToast,
+        style: {
+          borderRadius: '10px',
+          background: '#10B981',
+          color: '#fff',
+        },
+        duration: 4000,
+      })
       setSuccess(`Summary generated in ${response.data.processing_time?.toFixed(2)}s`)
     } catch (err) {
+      // Error toast
+      toast.error(`🚨 Summarization failed: ${err.response?.data?.detail || err.message}`, {
+        id: loadingToast,
+        style: {
+          borderRadius: '10px',
+          background: '#EF4444',
+          color: '#fff',
+        },
+        duration: 4000,
+      })
       setError(`Summarization failed: ${err.response?.data?.detail || err.message}`)
     } finally {
       setLoading(false)
@@ -158,6 +227,14 @@ function App() {
   // Send email
   const handleSendEmail = async (emailData) => {
     if (emailRecipients.length === 0) {
+      toast.error('📧 Please add at least one recipient', {
+        style: {
+          borderRadius: '10px',
+          background: '#EF4444',
+          color: '#fff',
+        },
+        duration: 3000,
+      })
       setError('Please add at least one recipient')
       return
     }
@@ -165,6 +242,15 @@ function App() {
     setLoading(true)
     setError('')
     clearMessages()
+    
+    // Show loading toast
+    const loadingToast = toast.loading('📧 Sending your email...', {
+      style: {
+        borderRadius: '10px',
+        background: colors.darkPurple,
+        color: '#fff',
+      },
+    })
     
     try {
       // Use emailData if provided, otherwise use existing summary
@@ -178,8 +264,29 @@ function App() {
         original_transcript: includeTranscript ? transcript : null,
         sender_details: emailData?.senderDetails || null
       })
+      
+      // Success toast
+      toast.success(`📨 Email sent successfully to ${emailRecipients.length} recipient${emailRecipients.length > 1 ? 's' : ''}!`, {
+        id: loadingToast,
+        style: {
+          borderRadius: '10px',
+          background: '#10B981',
+          color: '#fff',
+        },
+        duration: 4000,
+      })
       setSuccess(`Email sent successfully to ${emailRecipients.length} recipients!`)
     } catch (err) {
+      // Error toast
+      toast.error(`🚨 Email sending failed: ${err.response?.data?.detail || err.message}`, {
+        id: loadingToast,
+        style: {
+          borderRadius: '10px',
+          background: '#EF4444',
+          color: '#fff',
+        },
+        duration: 4000,
+      })
       setError(`Email sending failed: ${err.response?.data?.detail || err.message}`)
     } finally {
       setLoading(false)
@@ -313,6 +420,7 @@ function App() {
           <p>© 2024 RecapFlow • Built with ❤️ for better meetings</p>
         </div>
       </div>
+      <Toaster />
     </div>
   )
 }
