@@ -2,6 +2,7 @@
 
 🔄 **AI-powered transcript summarization and sharing platform**
 
+![Home Page](./homepage.png)
 ## Overview
 
 RecapFlow is a full-stack application that helps users upload meeting transcripts, generate AI-powered summaries with custom prompts, and share them via email. Built with React frontend, FastAPI backend, and powered by LangChain + Gemini AI.
