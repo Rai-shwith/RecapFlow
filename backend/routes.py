@@ -52,6 +52,7 @@ class EmailRequest(BaseModel):
     subject: Optional[str] = "Meeting Summary - RecapFlow"
     include_transcript: Optional[bool] = False
     original_transcript: Optional[str] = None
+    sender_details: Optional[dict] = None
 
 class RephraseRequest(BaseModel):
     summary: str
@@ -137,7 +138,8 @@ async def send_summary_email(request: EmailRequest):
             recipients=request.recipients,
             summary=request.summary,
             subject=request.subject,
-            original_transcript=request.original_transcript if request.include_transcript else None
+            original_transcript=request.original_transcript if request.include_transcript else None,
+            sender_details=request.sender_details
         )
         end_time = datetime.now()
         processing_time = (end_time - start_time).total_seconds()

@@ -147,7 +147,7 @@ function App() {
   }
 
   // Send email
-  const handleSendEmail = async () => {
+  const handleSendEmail = async (emailData) => {
     if (emailRecipients.length === 0) {
       setError('Please add at least one recipient')
       return
@@ -158,12 +158,16 @@ function App() {
     clearMessages()
     
     try {
+      // Use emailData if provided, otherwise use existing summary
+      const emailContent = emailData?.emailContent || summary
+      
       const response = await axios.post(`${API_BASE}/send-email`, {
         recipients: emailRecipients,
-        summary,
+        summary: emailContent,
         subject: emailSubject,
         include_transcript: includeTranscript,
-        original_transcript: includeTranscript ? transcript : null
+        original_transcript: includeTranscript ? transcript : null,
+        sender_details: emailData?.senderDetails || null
       })
       setSuccess(`Email sent successfully to ${emailRecipients.length} recipients!`)
     } catch (err) {

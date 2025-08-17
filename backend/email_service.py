@@ -40,7 +40,7 @@ class EmailService:
             print(f"Email connection test failed: {e}")
             return False
     
-    async def send_summary_email(self, recipients: List[str], summary: str, subject: str = "Meeting Summary - RecapFlow", original_transcript: str = None) -> bool:
+    async def send_summary_email(self, recipients: List[str], summary: str, subject: str = "Meeting Summary - RecapFlow", original_transcript: str = None, sender_details: dict = None) -> bool:
         """
         Send summarized transcript to recipients
         
@@ -49,6 +49,7 @@ class EmailService:
             summary (str): AI-generated summary
             subject (str): Email subject line
             original_transcript (str): Optional original transcript
+            sender_details (dict): Optional sender contact information
             
         Returns:
             bool: Success status
@@ -61,32 +62,38 @@ class EmailService:
             msg['Subject'] = subject
             
             # Create email body
-            body = f"""
-Hello,
-
-Here's your AI-generated meeting summary from RecapFlow:
-
---- SUMMARY ---
-{summary}
-
+            html_body = f"""
+<html>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    <p>Hello,</p>
+    
+    <p>Here's your AI-generated meeting summary from RecapFlow:</p>
+    
+    <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #2c3e50; margin-top: 0;">📋 Summary</h3>
+        <div style="white-space: pre-wrap;">{summary}</div>
+    </div>
 """
             
             if original_transcript:
-                body += f"""
---- ORIGINAL TRANSCRIPT ---
-{original_transcript}
-
+                html_body += f"""
+    <div style="background-color: #f0f0f0; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #2c3e50; margin-top: 0;">📄 Original Transcript</h3>
+        <div style="white-space: pre-wrap; font-size: 14px;">{original_transcript}</div>
+    </div>
 """
             
-            body += """
-Best regards,
-RecapFlow Team
-
----
-This email was sent automatically by RecapFlow.
+            html_body += """
+    <p>Best regards,<br>
+    RecapFlow Team</p>
+    
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;">
+    <p style="font-size: 12px; color: #666;">This email was sent automatically by RecapFlow.</p>
+</body>
+</html>
 """
             
-            msg.attach(MIMEText(body, 'plain'))
+            msg.attach(MIMEText(html_body, 'html'))
             
             # Send email
             server = smtplib.SMTP(self.smtp_server, self.smtp_port)

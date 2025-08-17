@@ -50,8 +50,14 @@ const EmailStep = ({
     setShowSenderPopup(false)
   }
 
-  const handleSaveEmailEdit = () => {
-    setIsEditingEmail(false)
+  const handleSendEmail = () => {
+    // Prepare email content without sender details (backend will handle them separately)
+    const emailContent = editableEmailContent || summary
+    
+    onSendEmail({
+      emailContent,
+      senderDetails: includeSenderDetails ? senderDetails : null
+    })
   }
 
   const formatSenderSignature = () => {
@@ -350,7 +356,12 @@ const EmailStep = ({
                       color: colors.darkPurple
                     }}
                   >
-                    <pre className="whitespace-pre-wrap font-sans">{formatSenderSignature()}</pre>
+                    <div 
+                      className="whitespace-pre-wrap font-sans"
+                      dangerouslySetInnerHTML={{ 
+                        __html: formatSenderSignature().replace(/---/g, '<hr style="margin: 8px 0; border: none; border-top: 1px solid #ccc;">') 
+                      }}
+                    />
                   </div>
                 )}
                 {includeTranscript && transcript && (
@@ -385,7 +396,7 @@ const EmailStep = ({
           Back
         </button>
         <LoadingButton
-          onClick={onSendEmail}
+          onClick={handleSendEmail}
           loading={loading}
           disabled={emailRecipients.length === 0}
           className="px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base order-1 sm:order-2"
