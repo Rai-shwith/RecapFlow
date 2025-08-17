@@ -61,17 +61,18 @@ class RecapFlowAI:
         try:
             # Default prompt if none provided
             if custom_prompt:
-                prompt = f"{custom_prompt}\n\nTranscript to summarize:\n{transcript}"
+                prompt = f"{custom_prompt}\n\nContent to analyze:\n{transcript}"
                 logger.debug("Using custom prompt for summarization")
             else:
                 prompt = f"""
-Please summarize the following transcript in a clear, professional manner:
-- Use bullet points for key topics
-- Highlight action items and decisions
-- Keep it concise but comprehensive
+Create a clear, professional summary with the following structure:
+- Use bullet points for key topics and decisions
+- Highlight action items with specific owners and deadlines
+- Include important dates(only if it is given), numbers, and commitments
 - Format for business communication
+- Start directly with the content, no introductory phrases
 
-Transcript:
+Content:
 {transcript}
 """
                 logger.debug("Using default prompt for summarization")
@@ -99,10 +100,10 @@ Transcript:
         
         try:
             style_prompts = {
-                "professional": "Rephrase this summary in a professional, business-appropriate tone:",
-                "casual": "Rephrase this summary in a casual, friendly tone:",
-                "technical": "Rephrase this summary with technical detail and precision:",
-                "executive": "Rephrase this summary as an executive briefing with key decisions highlighted:"
+                "professional": "Transform the following content into a professional, business-appropriate format:",
+                "casual": "Rewrite the following content in a casual, friendly tone:",
+                "technical": "Restructure the following content with technical detail and precision:",
+                "executive": "Convert the following content into an executive briefing highlighting key decisions:"
             }
             
             selected_prompt = style_prompts.get(style, style_prompts['professional'])
