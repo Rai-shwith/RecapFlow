@@ -13,6 +13,7 @@ import EmailStep from './components/steps/EmailStep'
 // Utility imports
 import { colors } from './utils/colors'
 import { markdownToPlainText, plainTextToMarkdown } from './utils/markdown'
+import Config from './config'
 
 // Icons
 import { 
@@ -96,7 +97,8 @@ function App() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   
-  const API_BASE = 'http://localhost:8000'
+  // API Configuration from environment
+  const API_BASE = Config.API_BASE_URL
 
   // File upload handler
   const handleFileUpload = async (file) => {
