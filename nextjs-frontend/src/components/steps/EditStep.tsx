@@ -9,7 +9,7 @@ interface EditStepProps {
   setEditableSummary: (summary: string) => void;
   isEditing: boolean;
   setIsEditing: (editing: boolean) => void;
-  onSaveEdit: () => void;
+  onSaveEdit: (newSummary?: string) => void;
   loading: boolean;
   onNext: () => void;
   onPrevious: () => void;
@@ -53,7 +53,7 @@ const EditStep = ({
     setEditableSummary(tempSummary);
     setIsEditing(false);
     setViewMode('preview');
-    onSaveEdit();
+    onSaveEdit(tempSummary); // Pass the new summary directly
     scrollToTop();
   };
 

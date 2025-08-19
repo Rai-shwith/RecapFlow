@@ -83,6 +83,43 @@ export default function FlowPage() {
   // API Configuration from environment
   const API_BASE = Config.API_BASE_URL;
 
+  // Load signature data from localStorage on component mount
+  React.useEffect(() => {
+    const savedSignature = localStorage.getItem('recapflow-signature');
+    if (savedSignature) {
+      try {
+        const signature = JSON.parse(savedSignature);
+        setSenderName(signature.name || '');
+        setSenderTitle(signature.title || '');
+        setSenderEmail(signature.email || '');
+        setSenderPhone(signature.phone || '');
+        setSenderCompany(signature.company || '');
+        setSenderWebsite(signature.website || '');
+      } catch (error) {
+        console.error('Error parsing saved signature:', error);
+      }
+    }
+  }, []);
+
+  // Save signature to localStorage whenever signature fields change
+  React.useEffect(() => {
+    const signature = {
+      name: senderName,
+      title: senderTitle,
+      email: senderEmail,
+      phone: senderPhone,
+      company: senderCompany,
+      website: senderWebsite
+    };
+    localStorage.setItem('recapflow-signature', JSON.stringify(signature));
+  }, [senderName, senderTitle, senderEmail, senderPhone, senderCompany, senderWebsite]);
+
+  // Utility function to escape tilde characters to prevent markdown strikethrough
+  const escapeTildes = (text: string): string => {
+    // Replace standalone tildes with escaped version to prevent strikethrough
+    return text.replace(/~/g, '\\~');
+  };
+
   // File upload handler
   const handleFileUpload = async (file: File) => {
     if (!file) return;
@@ -189,8 +226,9 @@ export default function FlowPage() {
       }
       
       const data = await response.json();
-      setSummary(data.summary); // Keep formatted markdown for display
-      setEditableSummary(data.summary); // Keep raw markdown for editing
+      const escapedSummary = escapeTildes(data.summary);
+      setSummary(escapedSummary); // Keep formatted markdown for display
+      setEditableSummary(escapedSummary); // Keep raw markdown for editing
       
       // Success toast
       toast.success('✨ Summary generated successfully!', {
@@ -224,9 +262,12 @@ export default function FlowPage() {
   };
 
   // Save edited summary
-  const handleSaveEdit = () => {
-    // editableSummary contains raw markdown, summary should be the same for consistency
-    setSummary(editableSummary);
+  const handleSaveEdit = (newSummary?: string) => {
+    // Use the provided newSummary or fall back to editableSummary
+    const summaryToSave = newSummary || editableSummary;
+    const escapedSummary = escapeTildes(summaryToSave);
+    setSummary(escapedSummary);
+    setEditableSummary(escapedSummary);
     setIsEditing(false);
     setSuccess('Summary updated successfully!');
   };
@@ -478,12 +519,12 @@ export default function FlowPage() {
           <p>
             Built with ❤️ for better meetings by{' '}
             <a 
-              href="https://github.com/Rai-shwith" 
+              href="https://ashwithrai.me" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="text-blue-600 hover:text-blue-800 transition-colors underline"
             >
-              Rai-shwith
+              Ashwith Rai
             </a>
           </p>
         </div>

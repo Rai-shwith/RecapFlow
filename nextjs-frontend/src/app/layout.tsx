@@ -18,12 +18,12 @@ export const metadata: Metadata = {
   title: "RecapFlow - AI Meeting Summarization",
   description: "Transform meetings into insights in minutes with AI-powered transcript summarization and professional email sharing.",
   keywords: ["meeting", "summarization", "AI", "transcript", "email", "productivity"],
-  authors: [{ name: "Rai-shwith", url: "https://github.com/Rai-shwith" }],
+  authors: [{ name: "Ashwith Rai", url: "https://github.com/Ashwith Rai" }],
   openGraph: {
     title: "RecapFlow - AI Meeting Summarization",
     description: "Transform meetings into insights in minutes with AI-powered transcript summarization and professional email sharing.",
     type: "website",
-    url: "https://rai-shwith.github.io/RecapFlow/",
+    url: "https://ashwithrai.me.github.io/RecapFlow/",
     siteName: "RecapFlow",
   },
   twitter: {

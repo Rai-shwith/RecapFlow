@@ -58,6 +58,7 @@ const EmailStep = ({
 }: EmailStepProps) => {
   const [newRecipient, setNewRecipient] = useState('');
   const [showPreview, setShowPreview] = useState(true); // Show preview by default
+  const [useProfileData, setUseProfileData] = useState(false); // Checkbox state for auto-fill
   
   // Autocomplete state
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -67,22 +68,7 @@ const EmailStep = ({
 
   // Load saved data from localStorage on component mount
   useEffect(() => {
-    const savedSignature = localStorage.getItem('recapflow-signature');
     const savedRecipientsData = localStorage.getItem('recapflow-recipients');
-    
-    if (savedSignature) {
-      try {
-        const signature = JSON.parse(savedSignature);
-        setSenderName(signature.name || '');
-        setSenderTitle(signature.title || '');
-        setSenderEmail(signature.email || '');
-        setSenderPhone(signature.phone || '');
-        setSenderCompany(signature.company || '');
-        setSenderWebsite(signature.website || '');
-      } catch (error) {
-        console.error('Error parsing saved signature:', error);
-      }
-    }
     
     if (savedRecipientsData) {
       try {
@@ -94,18 +80,11 @@ const EmailStep = ({
     }
   }, []);
 
-  // Save signature to localStorage whenever signature fields change
-  useEffect(() => {
-    const signature = {
-      name: senderName,
-      title: senderTitle,
-      email: senderEmail,
-      phone: senderPhone,
-      company: senderCompany,
-      website: senderWebsite
-    };
-    localStorage.setItem('recapflow-signature', JSON.stringify(signature));
-  }, [senderName, senderTitle, senderEmail, senderPhone, senderCompany, senderWebsite]);
+  // Note: Signature loading is now handled by the parent component (flow page)
+  // to prevent conflicts with navigation state persistence
+
+  // Note: Signature loading is now handled by the parent component (flow page)
+  // to prevent conflicts with navigation state persistence
 
   // Handle autocomplete for recipients
   const handleRecipientChange = (value: string) => {
@@ -118,12 +97,34 @@ const EmailStep = ({
       setFilteredSuggestions(filtered);
       setShowSuggestions(filtered.length > 0);
     } else {
-      setShowSuggestions(false);
+      // Show all saved recipients when input is empty
+      setFilteredSuggestions(savedRecipients);
+      setShowSuggestions(savedRecipients.length > 0);
+    }
+  };
+
+  // Handle input focus to show all saved recipients
+  const handleRecipientFocus = () => {
+    if (savedRecipients.length > 0) {
+      setFilteredSuggestions(savedRecipients);
+      setShowSuggestions(true);
     }
   };
 
   const selectSuggestion = (suggestion: string) => {
-    setNewRecipient(suggestion);
+    // Check if the suggestion is not already in the recipients list
+    if (!emailRecipients.includes(suggestion.trim())) {
+      const newRecipients = [...emailRecipients, suggestion.trim()];
+      setEmailRecipients(newRecipients);
+      
+      // Save to savedRecipients and localStorage (ensure it's in saved list)
+      const updatedSavedRecipients = [...new Set([...savedRecipients, suggestion.trim()])];
+      setSavedRecipients(updatedSavedRecipients);
+      localStorage.setItem('recapflow-recipients', JSON.stringify(updatedSavedRecipients));
+    }
+    
+    // Clear input and hide suggestions
+    setNewRecipient('');
     setShowSuggestions(false);
   };
 
@@ -222,11 +223,7 @@ const EmailStep = ({
                     value={newRecipient}
                     onChange={(e) => handleRecipientChange(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    onFocus={() => {
-                      if (newRecipient.trim() && filteredSuggestions.length > 0) {
-                        setShowSuggestions(true);
-                      }
-                    }}
+                    onFocus={handleRecipientFocus}
                     onBlur={() => {
                       // Delay hiding suggestions to allow clicking
                       setTimeout(() => setShowSuggestions(false), 200);

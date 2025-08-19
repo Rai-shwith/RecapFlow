@@ -441,12 +441,12 @@ export default function FlowPage() {
           <p>
             Built with ❤️ for better meetings by{' '}
             <a 
-              href="https://github.com/Rai-shwith" 
+              href="https://github.com/Ashwith Rai" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="text-blue-600 hover:text-blue-800 transition-colors underline"
             >
-              Rai-shwith
+              Ashwith Rai
             </a>
           </p>
         </div>

@@ -419,7 +419,7 @@ function App() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-gray-500 text-sm">
-          <p>Built with ❤️ for better meetings by <a href="https://github.com/Rai-shwith" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 transition-colors underline">Rai-shwith</a></p>
+          <p>Built with ❤️ for better meetings by <a href="https://github.com/Ashwith Rai" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 transition-colors underline">Ashwith Rai</a></p>
         </div>
       </div>
       <Toaster />
