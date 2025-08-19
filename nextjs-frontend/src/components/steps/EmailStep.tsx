@@ -69,6 +69,7 @@ const EmailStep = ({
   // Load saved data from localStorage on component mount
   useEffect(() => {
     const savedRecipientsData = localStorage.getItem('recapflow-recipients');
+    const savedSignature = localStorage.getItem('recapflow-signature');
     
     if (savedRecipientsData) {
       try {
@@ -78,13 +79,55 @@ const EmailStep = ({
         console.error('Error parsing saved recipients:', error);
       }
     }
+    
+    // Check if we should auto-fill from saved profile
+    // Only auto-fill if current signature fields are empty (first time entering email step)
+    if (savedSignature && !senderName && !senderTitle && !senderEmail && !senderPhone && !senderCompany && !senderWebsite) {
+      setUseProfileData(true);
+      try {
+        const signature = JSON.parse(savedSignature);
+        setSenderName(signature.name || '');
+        setSenderTitle(signature.title || '');
+        setSenderEmail(signature.email || '');
+        setSenderPhone(signature.phone || '');
+        setSenderCompany(signature.company || '');
+        setSenderWebsite(signature.website || '');
+      } catch (error) {
+        console.error('Error parsing saved signature:', error);
+      }
+    }
   }, []);
 
-  // Note: Signature loading is now handled by the parent component (flow page)
-  // to prevent conflicts with navigation state persistence
-
-  // Note: Signature loading is now handled by the parent component (flow page)
-  // to prevent conflicts with navigation state persistence
+  // Handle profile data checkbox toggle
+  const handleUseProfileDataChange = (checked: boolean) => {
+    setUseProfileData(checked);
+    
+    if (checked) {
+      // Auto-fill from saved profile data
+      const savedSignature = localStorage.getItem('recapflow-signature');
+      if (savedSignature) {
+        try {
+          const signature = JSON.parse(savedSignature);
+          setSenderName(signature.name || '');
+          setSenderTitle(signature.title || '');
+          setSenderEmail(signature.email || '');
+          setSenderPhone(signature.phone || '');
+          setSenderCompany(signature.company || '');
+          setSenderWebsite(signature.website || '');
+        } catch (error) {
+          console.error('Error parsing saved signature:', error);
+        }
+      }
+    } else {
+      // Clear all signature fields
+      setSenderName('');
+      setSenderTitle('');
+      setSenderEmail('');
+      setSenderPhone('');
+      setSenderCompany('');
+      setSenderWebsite('');
+    }
+  };
 
   // Handle autocomplete for recipients
   const handleRecipientChange = (value: string) => {
@@ -179,6 +222,17 @@ const EmailStep = ({
   };
 
   const handleSendEmail = () => {
+    // Save current signature data to localStorage when send is attempted
+    const currentSignature = {
+      name: senderName,
+      title: senderTitle,
+      email: senderEmail,
+      phone: senderPhone,
+      company: senderCompany,
+      website: senderWebsite
+    };
+    localStorage.setItem('recapflow-signature', JSON.stringify(currentSignature));
+    
     const emailData = {
       recipients: emailRecipients,
       subject: emailSubject,
@@ -294,6 +348,20 @@ const EmailStep = ({
               <MdPerson className="inline mr-2" />
               Email Signature (Optional)
             </label>
+            
+            {/* Auto-fill checkbox */}
+            <div className="mb-4">
+              <label className="flex items-center space-x-2 text-sm text-gray-600">
+                <input
+                  type="checkbox"
+                  checked={useProfileData}
+                  onChange={(e) => handleUseProfileDataChange(e.target.checked)}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <span>Use my saved profile data</span>
+              </label>
+            </div>
+            
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <input
                 type="text"

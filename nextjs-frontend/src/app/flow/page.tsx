@@ -101,18 +101,8 @@ export default function FlowPage() {
     }
   }, []);
 
-  // Save signature to localStorage whenever signature fields change
-  React.useEffect(() => {
-    const signature = {
-      name: senderName,
-      title: senderTitle,
-      email: senderEmail,
-      phone: senderPhone,
-      company: senderCompany,
-      website: senderWebsite
-    };
-    localStorage.setItem('recapflow-signature', JSON.stringify(signature));
-  }, [senderName, senderTitle, senderEmail, senderPhone, senderCompany, senderWebsite]);
+  // Note: Signature saving is now handled in EmailStep component when user clicks send
+  // This ensures save only happens when user actually attempts to send email
 
   // Utility function to escape tilde characters to prevent markdown strikethrough
   const escapeTildes = (text: string): string => {
