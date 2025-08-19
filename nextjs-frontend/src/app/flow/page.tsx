@@ -181,8 +181,8 @@ export default function FlowPage() {
       }
       
       const data = await response.json();
-      setSummary(data.summary);
-      setEditableSummary(markdownToPlainText(data.summary));
+      setSummary(data.summary); // Keep formatted markdown for display
+      setEditableSummary(data.summary); // Keep raw markdown for editing
       
       // Success toast
       toast.success('✨ Summary generated successfully!', {
@@ -195,6 +195,9 @@ export default function FlowPage() {
         duration: 3000,
       });
       setSuccess('Summary generated successfully!');
+      
+      // Scroll to top to show the generated summary
+      scrollToTop();
     } catch (err: any) {
       // Error toast
       toast.error(`🚨 Summarization failed: ${err.message}`, {
@@ -214,8 +217,8 @@ export default function FlowPage() {
 
   // Save edited summary
   const handleSaveEdit = () => {
-    const markdownSummary = plainTextToMarkdown(editableSummary);
-    setSummary(markdownSummary);
+    // editableSummary contains raw markdown, summary should be the same for consistency
+    setSummary(editableSummary);
     setIsEditing(false);
     setSuccess('Summary updated successfully!');
   };
@@ -282,6 +285,9 @@ export default function FlowPage() {
         duration: 4000,
       });
       setSuccess(`Email sent successfully to ${emailRecipients.length} recipients!`);
+      
+      // Scroll to top to show success message
+      scrollToTop();
     } catch (err: any) {
       // Error toast
       toast.error(`🚨 Email sending failed: ${err.message}`, {
@@ -299,20 +305,31 @@ export default function FlowPage() {
     }
   };
 
+  // Utility function to scroll to top smoothly
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   // Navigation functions
   const nextStep = () => {
     clearMessages();
     setCurrentStep(Math.min(currentStep + 1, steps.length - 1));
+    scrollToTop();
   };
   
   const prevStep = () => {
     clearMessages();
     setCurrentStep(Math.max(currentStep - 1, 0));
+    scrollToTop();
   };
   
   const goToStep = (step: number) => {
     clearMessages();
     setCurrentStep(step);
+    scrollToTop();
   };
 
   // Clear success/error messages

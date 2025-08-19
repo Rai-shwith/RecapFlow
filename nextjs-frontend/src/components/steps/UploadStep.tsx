@@ -26,6 +26,14 @@ const UploadStep = ({
   onNext,
   onPrevious
 }: UploadStepProps) => {
+  // Utility function to scroll to top smoothly
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
   // Drag and drop handlers
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -43,6 +51,34 @@ const UploadStep = ({
     if (e.target.files && e.target.files[0]) {
       onFileUpload(e.target.files[0]);
     }
+  };
+
+  const handleSampleText = () => {
+    setTranscript(`Meeting Transcript - RecapFlow Development Session
+Date: August 19, 2025
+Participants: Development Team
+
+Sarah: Good morning everyone. Let's review our progress on RecapFlow.
+
+Mike: The backend FastAPI server is now running smoothly. We've successfully integrated Google Gemini AI for summarization.
+
+Alex: Great! I've finished the frontend React interface with Tailwind CSS. The user can now test all API endpoints directly from the browser.
+
+Sarah: What about the email functionality?
+
+Mike: The SMTP integration is working. We're using proper HTML formatting for the emails with the RecapFlow branding.
+
+Alex: The file upload feature is also ready. Users can upload .txt or .md files and the content automatically populates the summarization form.
+
+Sarah: Excellent progress! What are our next steps?
+
+Mike: We should focus on error handling and user experience improvements.
+
+Alex: I agree. We also need to add loading states and better validation.
+
+Sarah: Perfect. Let's plan for deployment testing next week.
+`);
+    scrollToTop();
   };
 
   return (
@@ -99,10 +135,19 @@ const UploadStep = ({
 
       {/* Manual Text Input */}
       <div>
-        <label className="flex items-center gap-2 text-sm font-medium mb-2 text-gray-700">
-          <MdDescription className="text-lg" />
-          Or paste your transcript here:
-        </label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+            <MdDescription className="text-lg" />
+            Or paste your transcript here:
+          </label>
+          <button
+            onClick={handleSampleText}
+            className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+            disabled={loading}
+          >
+            Load Sample
+          </button>
+        </div>
         <textarea
           value={transcript}
           onChange={(e) => setTranscript(e.target.value)}
