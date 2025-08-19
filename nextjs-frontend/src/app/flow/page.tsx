@@ -372,8 +372,8 @@ export default function FlowPage() {
         return transcript.trim().length > 0;
       case 1: // Summarize step
         return summary.trim().length > 0;
-      case 2: // Edit step
-        return summary.trim().length > 0; // Same as summarize
+      case 2: // Edit step - editing is optional, so if we have a summary, we can proceed
+        return summary.trim().length > 0; // Same as summarize since editing is optional
       case 3: // Email step
         return emailRecipients.length > 0 && emailSubject.trim().length > 0;
       default:
@@ -396,7 +396,7 @@ export default function FlowPage() {
           errorMessage = 'Please generate a summary before proceeding';
           break;
         case 2:
-          errorMessage = 'Please ensure your summary is complete before proceeding';
+          errorMessage = 'Please ensure your summary is available before proceeding';
           break;
         default:
           errorMessage = 'Please complete the current step before proceeding';
@@ -439,7 +439,7 @@ export default function FlowPage() {
           errorMessage = 'Please complete the Summarize step first (generate AI summary)';
           break;
         case 2:
-          errorMessage = 'Please complete the Edit step first (review your summary)';
+          errorMessage = 'Please complete the Edit step first (ensure summary is available)';
           break;
         default:
           errorMessage = 'Please complete the previous steps before proceeding';
