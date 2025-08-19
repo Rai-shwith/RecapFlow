@@ -19,6 +19,16 @@ export const metadata: Metadata = {
   description: "Transform meetings into insights in minutes with AI-powered transcript summarization and professional email sharing.",
   keywords: ["meeting", "summarization", "AI", "transcript", "email", "productivity"],
   authors: [{ name: "Ashwith Rai", url: "https://github.com/Ashwith Rai" }],
+  icons: {
+    icon: [
+      { url: '/logo.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '16x16', type: 'image/x-icon' },
+    ],
+    apple: [
+      { url: '/logo.svg', sizes: '180x180', type: 'image/svg+xml' },
+    ],
+    shortcut: '/logo.svg',
+  },
   openGraph: {
     title: "RecapFlow - AI Meeting Summarization",
     description: "Transform meetings into insights in minutes with AI-powered transcript summarization and professional email sharing.",
