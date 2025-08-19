@@ -19,9 +19,17 @@ interface StepIndicatorProps {
   steps: string[];
   currentStep: number;
   onStepClick?: (stepIndex: number) => void;
+  isStepCompleted?: (step: number) => boolean;
+  canProceedToStep?: (targetStep: number) => boolean;
 }
 
-const StepIndicator = ({ steps, currentStep, onStepClick }: StepIndicatorProps) => (
+const StepIndicator = ({ 
+  steps, 
+  currentStep, 
+  onStepClick, 
+  isStepCompleted, 
+  canProceedToStep 
+}: StepIndicatorProps) => (
   <div className="mb-8">
     {/* Desktop View */}
     <div className="hidden md:block">
@@ -42,9 +50,9 @@ const StepIndicator = ({ steps, currentStep, onStepClick }: StepIndicatorProps) 
       <div className="flex items-center justify-between">
         {steps.map((step, index) => {
           const IconComponent = stepIcons[step as keyof typeof stepIcons];
-          const isCompleted = index < currentStep;
+          const isCompleted = isStepCompleted ? isStepCompleted(index) : index < currentStep;
           const isCurrent = index === currentStep;
-          const isClickable = onStepClick && (index <= currentStep);
+          const isClickable = onStepClick && (canProceedToStep ? canProceedToStep(index) : index <= currentStep);
           
           return (
             <div key={step} className="flex flex-col items-center">
@@ -52,7 +60,7 @@ const StepIndicator = ({ steps, currentStep, onStepClick }: StepIndicatorProps) 
                 onClick={() => isClickable && onStepClick(index)}
                 disabled={!isClickable}
                 className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg transition-all duration-200 ${
-                  isClickable ? 'hover:shadow-xl cursor-pointer' : 'cursor-not-allowed'
+                  isClickable ? 'hover:shadow-xl cursor-pointer' : 'cursor-not-allowed opacity-50'
                 }`}
                 style={{
                   backgroundColor: isCompleted || isCurrent ? colors.primary : colors.gray[300]
@@ -110,12 +118,12 @@ const StepIndicator = ({ steps, currentStep, onStepClick }: StepIndicatorProps) 
           <button
             key={index}
             onClick={() => onStepClick && onStepClick(index)}
-            disabled={!onStepClick || index > currentStep}
+            disabled={!onStepClick || !(canProceedToStep ? canProceedToStep(index) : index <= currentStep)}
             className={`w-3 h-3 rounded-full transition-all duration-200 ${
-              index <= currentStep ? 'opacity-100' : 'opacity-30'
+              (isStepCompleted ? isStepCompleted(index) : index < currentStep) || index === currentStep ? 'opacity-100' : 'opacity-30'
             }`}
             style={{
-              backgroundColor: index <= currentStep ? colors.primary : colors.gray[300]
+              backgroundColor: (isStepCompleted ? isStepCompleted(index) : index < currentStep) || index === currentStep ? colors.primary : colors.gray[300]
             }}
           />
         ))}

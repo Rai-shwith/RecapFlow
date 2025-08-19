@@ -59,6 +59,7 @@ interface QuickNavigationProps {
   onPrevious: () => void;
   onNext: () => void;
   loading: boolean;
+  canProceedToNext?: boolean;
 }
 
 const QuickNavigation = ({ 
@@ -66,7 +67,8 @@ const QuickNavigation = ({
   steps, 
   onPrevious, 
   onNext, 
-  loading 
+  loading,
+  canProceedToNext = true
 }: QuickNavigationProps) => (
   <div className="mb-6 flex justify-center gap-2 sm:gap-4">
     <LoadingButton
@@ -82,7 +84,7 @@ const QuickNavigation = ({
     </LoadingButton>
     <LoadingButton
       onClick={onNext}
-      disabled={currentStep === steps.length - 1}
+      disabled={currentStep === steps.length - 1 || !canProceedToNext}
       variant="primary"
       loading={loading}
       className="px-3 sm:px-4 py-2 text-sm sm:text-base flex items-center gap-2"

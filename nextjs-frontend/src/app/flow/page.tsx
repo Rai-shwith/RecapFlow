@@ -352,10 +352,70 @@ export default function FlowPage() {
     });
   };
 
-  // Navigation functions
+  // Step validation function
+  const canProceedToStep = (targetStep: number): boolean => {
+    // Can always go backwards
+    if (targetStep <= currentStep) return true;
+    
+    // Check if all previous steps are completed
+    for (let step = 0; step < targetStep; step++) {
+      if (!isStepCompleted(step)) return false;
+    }
+    
+    return true;
+  };
+
+  // Check if a specific step is completed
+  const isStepCompleted = (step: number): boolean => {
+    switch (step) {
+      case 0: // Upload step
+        return transcript.trim().length > 0;
+      case 1: // Summarize step
+        return summary.trim().length > 0;
+      case 2: // Edit step
+        return summary.trim().length > 0; // Same as summarize
+      case 3: // Email step
+        return emailRecipients.length > 0 && emailSubject.trim().length > 0;
+      default:
+        return false;
+    }
+  };
+
+  // Navigation functions with validation
   const nextStep = () => {
+    const targetStep = Math.min(currentStep + 1, steps.length - 1);
+    
+    if (!canProceedToStep(targetStep)) {
+      // Show error message based on current step
+      let errorMessage = '';
+      switch (currentStep) {
+        case 0:
+          errorMessage = 'Please upload a file or enter transcript text before proceeding';
+          break;
+        case 1:
+          errorMessage = 'Please generate a summary before proceeding';
+          break;
+        case 2:
+          errorMessage = 'Please ensure your summary is complete before proceeding';
+          break;
+        default:
+          errorMessage = 'Please complete the current step before proceeding';
+      }
+      
+      toast.error(errorMessage, {
+        style: {
+          borderRadius: '10px',
+          background: '#EF4444',
+          color: '#fff',
+        },
+        duration: 3000,
+      });
+      setError(errorMessage);
+      return;
+    }
+    
     clearMessages();
-    setCurrentStep(Math.min(currentStep + 1, steps.length - 1));
+    setCurrentStep(targetStep);
     scrollToTop();
   };
   
@@ -366,9 +426,48 @@ export default function FlowPage() {
   };
   
   const goToStep = (step: number) => {
+    if (!canProceedToStep(step)) {
+      // Show error message for incomplete steps
+      let errorMessage = '';
+      const incompleteStep = findFirstIncompleteStep(step);
+      
+      switch (incompleteStep) {
+        case 0:
+          errorMessage = 'Please complete the Upload step first (upload file or enter transcript)';
+          break;
+        case 1:
+          errorMessage = 'Please complete the Summarize step first (generate AI summary)';
+          break;
+        case 2:
+          errorMessage = 'Please complete the Edit step first (review your summary)';
+          break;
+        default:
+          errorMessage = 'Please complete the previous steps before proceeding';
+      }
+      
+      toast.error(errorMessage, {
+        style: {
+          borderRadius: '10px',
+          background: '#EF4444',
+          color: '#fff',
+        },
+        duration: 3000,
+      });
+      setError(errorMessage);
+      return;
+    }
+    
     clearMessages();
     setCurrentStep(step);
     scrollToTop();
+  };
+
+  // Helper function to find the first incomplete step
+  const findFirstIncompleteStep = (targetStep: number): number => {
+    for (let step = 0; step < targetStep; step++) {
+      if (!isStepCompleted(step)) return step;
+    }
+    return targetStep;
   };
 
   // Clear success/error messages
@@ -423,6 +522,8 @@ export default function FlowPage() {
           steps={steps}
           currentStep={currentStep}
           onStepClick={goToStep}
+          isStepCompleted={isStepCompleted}
+          canProceedToStep={canProceedToStep}
         />
 
         {/* Quick Navigation */}
@@ -432,6 +533,7 @@ export default function FlowPage() {
           onPrevious={prevStep}
           onNext={nextStep}
           loading={loading}
+          canProceedToNext={canProceedToStep(currentStep + 1)}
         />
 
         {/* Main Content */}
