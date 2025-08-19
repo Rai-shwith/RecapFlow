@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { MdAdd, MdDelete, MdEmail, MdPreview, MdAttachment, MdSend } from 'react-icons/md';
+import React, { useState, useEffect, useRef } from 'react';
+import { MdAdd, MdDelete, MdEmail, MdPreview, MdAttachment, MdSend, MdPerson, MdBusiness, MdPhone } from 'react-icons/md';
 import { marked } from 'marked';
 import { colors } from '@/utils/colors';
 
@@ -36,11 +36,91 @@ const EmailStep = ({
   const [showPreview, setShowPreview] = useState(false);
   const [senderName, setSenderName] = useState('');
   const [senderTitle, setSenderTitle] = useState('');
+  const [senderEmail, setSenderEmail] = useState('');
+  const [senderPhone, setSenderPhone] = useState('');
+  const [senderCompany, setSenderCompany] = useState('');
+  const [senderWebsite, setSenderWebsite] = useState('');
+  
+  // Autocomplete state
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
+  const [savedRecipients, setSavedRecipients] = useState<string[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Load saved data from localStorage on component mount
+  useEffect(() => {
+    const savedSignature = localStorage.getItem('recapflow-signature');
+    const savedRecipientsData = localStorage.getItem('recapflow-recipients');
+    
+    if (savedSignature) {
+      try {
+        const signature = JSON.parse(savedSignature);
+        setSenderName(signature.name || '');
+        setSenderTitle(signature.title || '');
+        setSenderEmail(signature.email || '');
+        setSenderPhone(signature.phone || '');
+        setSenderCompany(signature.company || '');
+        setSenderWebsite(signature.website || '');
+      } catch (error) {
+        console.error('Error parsing saved signature:', error);
+      }
+    }
+    
+    if (savedRecipientsData) {
+      try {
+        const recipients = JSON.parse(savedRecipientsData);
+        setSavedRecipients(recipients);
+      } catch (error) {
+        console.error('Error parsing saved recipients:', error);
+      }
+    }
+  }, []);
+
+  // Save signature to localStorage whenever signature fields change
+  useEffect(() => {
+    const signature = {
+      name: senderName,
+      title: senderTitle,
+      email: senderEmail,
+      phone: senderPhone,
+      company: senderCompany,
+      website: senderWebsite
+    };
+    localStorage.setItem('recapflow-signature', JSON.stringify(signature));
+  }, [senderName, senderTitle, senderEmail, senderPhone, senderCompany, senderWebsite]);
+
+  // Handle autocomplete for recipients
+  const handleRecipientChange = (value: string) => {
+    setNewRecipient(value);
+    
+    if (value.trim()) {
+      const filtered = savedRecipients.filter(recipient => 
+        recipient.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const selectSuggestion = (suggestion: string) => {
+    setNewRecipient(suggestion);
+    setShowSuggestions(false);
+  };
 
   const addRecipient = () => {
     if (newRecipient.trim() && !emailRecipients.includes(newRecipient.trim())) {
-      setEmailRecipients([...emailRecipients, newRecipient.trim()]);
+      const newRecipients = [...emailRecipients, newRecipient.trim()];
+      setEmailRecipients(newRecipients);
+      
+      // Save to savedRecipients and localStorage
+      const updatedSavedRecipients = [...new Set([...savedRecipients, newRecipient.trim()])];
+      setSavedRecipients(updatedSavedRecipients);
+      localStorage.setItem('recapflow-recipients', JSON.stringify(updatedSavedRecipients));
+      
       setNewRecipient('');
+      setShowSuggestions(false);
     }
   };
 
@@ -51,11 +131,22 @@ const EmailStep = ({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       addRecipient();
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
     }
   };
 
   const generateEmailBody = () => {
-    const signature = senderName ? `\n\nBest regards,\n${senderName}${senderTitle ? `\n${senderTitle}` : ''}` : '';
+    let signature = '';
+    if (senderName || senderTitle || senderEmail || senderPhone || senderCompany || senderWebsite) {
+      signature = '\n\nBest regards,';
+      if (senderName) signature += `\n${senderName}`;
+      if (senderTitle) signature += `\n${senderTitle}`;
+      if (senderCompany) signature += `\n${senderCompany}`;
+      if (senderEmail) signature += `\n📧 ${senderEmail}`;
+      if (senderPhone) signature += `\n📞 ${senderPhone}`;
+      if (senderWebsite) signature += `\n🌐 ${senderWebsite}`;
+    }
     return `${summary}${signature}`;
   };
 
@@ -75,7 +166,11 @@ const EmailStep = ({
       body: generateEmailBody(),
       includeTranscript,
       senderName,
-      senderTitle
+      senderTitle,
+      senderEmail,
+      senderPhone,
+      senderCompany,
+      senderWebsite
     };
     onSendEmail(emailData);
   };
@@ -101,23 +196,51 @@ const EmailStep = ({
               Recipients
             </label>
             <div className="space-y-3">
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  value={newRecipient}
-                  onChange={(e) => setNewRecipient(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Enter email address"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                />
-                <button
-                  onClick={addRecipient}
-                  disabled={!newRecipient.trim()}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  <MdAdd />
-                </button>
+              <div className="relative">
+                <div className="flex gap-2">
+                  <input
+                    ref={inputRef}
+                    type="email"
+                    value={newRecipient}
+                    onChange={(e) => handleRecipientChange(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    onFocus={() => {
+                      if (newRecipient.trim() && filteredSuggestions.length > 0) {
+                        setShowSuggestions(true);
+                      }
+                    }}
+                    onBlur={() => {
+                      // Delay hiding suggestions to allow clicking
+                      setTimeout(() => setShowSuggestions(false), 200);
+                    }}
+                    placeholder="Enter email address"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  />
+                  <button
+                    onClick={addRecipient}
+                    disabled={!newRecipient.trim()}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <MdAdd />
+                  </button>
+                </div>
+                
+                {/* Autocomplete Suggestions */}
+                {showSuggestions && filteredSuggestions.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                    {filteredSuggestions.map((suggestion, index) => (
+                      <button
+                        key={index}
+                        onClick={() => selectSuggestion(suggestion)}
+                        className="w-full text-left px-3 py-2 hover:bg-blue-50 hover:text-blue-700 transition-colors text-sm text-gray-700 border-b border-gray-100 last:border-b-0"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
+              
               {emailRecipients.length > 0 && (
                 <div className="space-y-2">
                   {emailRecipients.map((recipient, index) => (
@@ -153,9 +276,10 @@ const EmailStep = ({
           {/* Sender Information */}
           <div className="bg-white border border-gray-200 rounded-lg p-4">
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              Signature (Optional)
+              <MdPerson className="inline mr-2" />
+              Email Signature (Optional)
             </label>
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <input
                 type="text"
                 value={senderName}
@@ -170,6 +294,37 @@ const EmailStep = ({
                 placeholder="Your title/position"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               />
+              <input
+                type="text"
+                value={senderCompany}
+                onChange={(e) => setSenderCompany(e.target.value)}
+                placeholder="Company name"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              />
+              <input
+                type="email"
+                value={senderEmail}
+                onChange={(e) => setSenderEmail(e.target.value)}
+                placeholder="Your email"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              />
+              <input
+                type="tel"
+                value={senderPhone}
+                onChange={(e) => setSenderPhone(e.target.value)}
+                placeholder="Phone number"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              />
+              <input
+                type="url"
+                value={senderWebsite}
+                onChange={(e) => setSenderWebsite(e.target.value)}
+                placeholder="Website (optional)"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              />
+            </div>
+            <div className="mt-2 text-xs text-gray-500">
+              💡 Your signature details will be saved for future emails
             </div>
           </div>
 
