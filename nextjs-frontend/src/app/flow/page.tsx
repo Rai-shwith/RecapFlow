@@ -67,6 +67,14 @@ export default function FlowPage() {
   const [emailSubject, setEmailSubject] = useState('Meeting Summary - RecapFlow');
   const [includeTranscript, setIncludeTranscript] = useState(false);
   
+  // Email signature state
+  const [senderName, setSenderName] = useState('');
+  const [senderTitle, setSenderTitle] = useState('');
+  const [senderEmail, setSenderEmail] = useState('');
+  const [senderPhone, setSenderPhone] = useState('');
+  const [senderCompany, setSenderCompany] = useState('');
+  const [senderWebsite, setSenderWebsite] = useState('');
+  
   // UI state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -449,6 +457,18 @@ export default function FlowPage() {
               loading={loading}
               onNext={nextStep}
               onPrevious={prevStep}
+              senderName={senderName}
+              setSenderName={setSenderName}
+              senderTitle={senderTitle}
+              setSenderTitle={setSenderTitle}
+              senderEmail={senderEmail}
+              setSenderEmail={setSenderEmail}
+              senderPhone={senderPhone}
+              setSenderPhone={setSenderPhone}
+              senderCompany={senderCompany}
+              setSenderCompany={setSenderCompany}
+              senderWebsite={senderWebsite}
+              setSenderWebsite={setSenderWebsite}
             />
           )}
         </div>

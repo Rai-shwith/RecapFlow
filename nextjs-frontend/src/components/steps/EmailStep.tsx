@@ -16,6 +16,18 @@ interface EmailStepProps {
   loading: boolean;
   onNext: () => void;
   onPrevious: () => void;
+  senderName: string;
+  setSenderName: (name: string) => void;
+  senderTitle: string;
+  setSenderTitle: (title: string) => void;
+  senderEmail: string;
+  setSenderEmail: (email: string) => void;
+  senderPhone: string;
+  setSenderPhone: (phone: string) => void;
+  senderCompany: string;
+  setSenderCompany: (company: string) => void;
+  senderWebsite: string;
+  setSenderWebsite: (website: string) => void;
 }
 
 const EmailStep = ({ 
@@ -30,16 +42,22 @@ const EmailStep = ({
   onSendEmail, 
   loading,
   onNext,
-  onPrevious
+  onPrevious,
+  senderName,
+  setSenderName,
+  senderTitle,
+  setSenderTitle,
+  senderEmail,
+  setSenderEmail,
+  senderPhone,
+  setSenderPhone,
+  senderCompany,
+  setSenderCompany,
+  senderWebsite,
+  setSenderWebsite
 }: EmailStepProps) => {
   const [newRecipient, setNewRecipient] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
-  const [senderName, setSenderName] = useState('');
-  const [senderTitle, setSenderTitle] = useState('');
-  const [senderEmail, setSenderEmail] = useState('');
-  const [senderPhone, setSenderPhone] = useState('');
-  const [senderCompany, setSenderCompany] = useState('');
-  const [senderWebsite, setSenderWebsite] = useState('');
+  const [showPreview, setShowPreview] = useState(true); // Show preview by default
   
   // Autocomplete state
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -347,7 +365,7 @@ const EmailStep = ({
         </div>
 
         {/* Email Preview */}
-        <div className="bg-white border border-gray-200 rounded-lg">
+        <div className="bg-white border border-gray-200 rounded-lg h-fit">
           <div className="border-b border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <h3 className="font-medium text-gray-900">Email Preview</h3>
@@ -361,7 +379,7 @@ const EmailStep = ({
             </div>
           </div>
           {showPreview && (
-            <div className="p-4 space-y-4 max-h-96 overflow-y-auto">
+            <div className="p-4 space-y-4 max-h-[600px] overflow-y-auto">
               <div className="text-sm text-gray-600 space-y-1">
                 <div><strong>To:</strong> {emailRecipients.join(', ') || 'No recipients'}</div>
                 <div><strong>Subject:</strong> {emailSubject || 'No subject'}</div>
