@@ -159,7 +159,7 @@ const EditStep = ({
           /* Preview Mode - Show rendered markdown with bold, italic, etc. */
           <div className="p-6">
             <div 
-              className="prose prose-blue max-w-none markdown-content"
+              className="prose prose-blue max-w-none markdown-content md:h-[70vh] overflow-scroll bg-gray-50 p-3 rounded-2xl"
               dangerouslySetInnerHTML={{ 
                 __html: renderMarkdown(isEditing ? tempSummary : editableSummary) 
               }}

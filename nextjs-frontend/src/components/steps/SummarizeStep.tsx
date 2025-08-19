@@ -29,13 +29,13 @@ const SummaryViewer = ({ summary, title }: { summary: string; title: string }) =
   };
 
   return (
-    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+    <div className="bg-gray-100 rounded-lg p-4 border border-gray-200">
       <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
         <MdStar className="text-blue-600" />
         {title}
       </h4>
       <div 
-        className="prose prose-sm max-w-none markdown-content md:h-[90vh] overflow-scroll"
+        className="prose prose-sm max-w-none markdown-content md:h-[70vh] overflow-scroll bg-gray-50 p-3 rounded-2xl"
         dangerouslySetInnerHTML={{ __html: renderMarkdown(summary) }}
       />
     </div>
