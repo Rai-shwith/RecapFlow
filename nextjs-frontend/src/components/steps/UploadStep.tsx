@@ -54,30 +54,75 @@ const UploadStep = ({
   };
 
   const handleSampleText = () => {
-    setTranscript(`Meeting Transcript - RecapFlow Development Session
+    setTranscript(`Meeting Transcript – RecapFlow Development Session
+
 Date: August 19, 2025
-Participants: Development Team
+Participants: Ashwith, Arya, Arnav, Deeksha, Anagha, Archana, Abhay, Lavanya, Krupa
 
-Sarah: Good morning everyone. Let's review our progress on RecapFlow.
+Ashwith:
+Alright folks, quick update. The first version of RecapFlow was on React, hosted on Vercel. It worked fine, but I wasn’t happy with the SEO side of it. So I migrated the whole frontend to Next.js. Right now, I’m setting it up for Static Site Generation and planning to host on GitHub Pages. Honestly, from my experience, GitHub Pages feels way faster than Vercel.
 
-Mike: The backend FastAPI server is now running smoothly. We've successfully integrated Google Gemini AI for summarization.
+Arya:
+But bro, Vercel has better caching, no? Are you sure GitHub Pages can handle it when we scale?
 
-Alex: Great! I've finished the frontend React interface with Tailwind CSS. The user can now test all API endpoints directly from the browser.
+Ashwith:
+Yeah, that’s true in theory, but in practice I’ve seen GitHub Pages load quicker. For us, since it’s static content after generation, GitHub Pages makes sense. Plus, it’s free and reliable.
 
-Sarah: What about the email functionality?
+Krupa:
+Wait—so the backend is still FastAPI, right? Where’s that hosted?
 
-Mike: The SMTP integration is working. We're using proper HTML formatting for the emails with the RecapFlow branding.
+Ashwith:
+Yeah, backend is FastAPI, running on Heroku. So frontend on GitHub Pages, backend on Heroku.
 
-Alex: The file upload feature is also ready. Users can upload .txt or .md files and the content automatically populates the summarization form.
+Abhay:
+Makes sense. But if we’re going static, we should think about error handling carefully. Users might get confused if something fails silently.
 
-Sarah: Excellent progress! What are our next steps?
+Lavanya:
+Yeah, we should add clear error messages and loading indicators. Right now, if someone uploads a huge transcript, it just feels stuck.
 
-Mike: We should focus on error handling and user experience improvements.
+Deeksha:
+And while you’re fixing that, can we also give the dashboard a refresh? The current design is too plain. Maybe a gradient theme would make it look modern.
 
-Alex: I agree. We also need to add loading states and better validation.
+Anagha:
+Agree. And I’d love to add some small animations. Like the “Summarize” button glowing when hovered. Just enough to make it interactive.
 
-Sarah: Perfect. Let's plan for deployment testing next week.
-`);
+Arnav:
+Looks are good, but let’s also talk about pitching. If we keep polishing the UX, we can easily market this to colleges and startups. Imagine professors uploading lecture transcripts and students instantly getting a recap.
+
+Archana:
+If we’re going after colleges and companies, then we need to handle privacy properly. People might upload sensitive content. We should auto-delete transcripts after summarization.
+
+Arya:
+Good point. Also, in the future, we could still containerize everything with Docker. That way, whether it’s GitHub Pages or Vercel, we’ll have flexibility.
+
+Krupa:
+Can I throw in another idea? What if we add multi-label summaries — like not just a single “summary,” but also sections for “Action Items,” “Key Points,” and “Decisions.” That would make RecapFlow more than just another summarizer.
+
+Ashwith:
+I like that. Multi-label support could be a big differentiator.
+
+Abhay:
+And multilingual support too. Imagine someone uploading a Hindi or Kannada transcript and still getting perfect summaries. That’d be huge.
+
+Deeksha (laughing):
+True. But let’s first finalize the colors before you add ten languages.
+
+Anagha:
+And no Comic Sans, please.
+
+Everyone: (laughs)
+
+Arnav:
+Anyway, if this goes well, I’ll start drafting a pitch. We could even try getting some student clubs to beta test.
+
+Ashwith:
+Sounds good. So to sum up: frontend is moving to Next.js with SSG on GitHub Pages, backend stays on Heroku. Next steps — fix error handling, improve UX, work on privacy, explore Docker, and brainstorm multi-label + multilingual support.
+
+Arnav:
+And when we get investors, coffee’s on me.
+
+Ashwith:
+Deal. Meeting adjourned 🚀`);
     scrollToTop();
   };
 
