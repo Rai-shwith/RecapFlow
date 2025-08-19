@@ -7,8 +7,8 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   // GitHub Pages deployment configuration
-  basePath: process.env.NODE_ENV === 'production' ? '/RecapFlow' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/RecapFlow/' : '',
+  basePath: '',
+  assetPrefix: '',
   // Disable ESLint during builds
   eslint: {
     ignoreDuringBuilds: true,
