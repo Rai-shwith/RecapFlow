@@ -1,7 +1,6 @@
 import React from 'react';
 import { colors } from '@/utils/colors';
 import { MdArrowBack, MdArrowForward } from 'react-icons/md';
-
 interface LoadingButtonProps {
   onClick: () => void;
   disabled?: boolean;

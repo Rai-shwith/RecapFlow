@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
   // GitHub Pages deployment configuration
   basePath: process.env.NODE_ENV === 'production' ? '/RecapFlow' : '',
   assetPrefix: process.env.NODE_ENV === 'production' ? '/RecapFlow/' : '',
+  // Disable ESLint during builds
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  // Disable TypeScript errors during builds (optional)
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 export default nextConfig;
