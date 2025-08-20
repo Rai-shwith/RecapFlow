@@ -263,7 +263,19 @@ export default function FlowPage() {
   };
 
   // Send email
-  const handleSendEmail = async (emailData?: any) => {
+  const handleSendEmail = async (emailData?: {
+    recipients?: string[];
+    subject?: string;
+    body?: string;
+    includeTranscript?: boolean;
+    senderName?: string;
+    senderTitle?: string;
+    senderEmail?: string;
+    senderPhone?: string;
+    senderCompany?: string;
+    senderWebsite?: string;
+    emailContent?: string;
+  }) => {
     if (emailRecipients.length === 0) {
       toast.error('📧 Please add at least one recipient', {
         style: {
@@ -294,6 +306,16 @@ export default function FlowPage() {
       // Use emailData if provided, otherwise use existing summary
       const emailContent = emailData?.emailContent || summary;
       
+      // Extract sender details from emailData or use current state
+      const senderDetails = {
+        name: emailData?.senderName || senderName,
+        position: emailData?.senderTitle || senderTitle,
+        email: emailData?.senderEmail || senderEmail,
+        phone: emailData?.senderPhone || senderPhone,
+        company: emailData?.senderCompany || senderCompany,
+        website: emailData?.senderWebsite || senderWebsite,
+      };
+
       const response = await fetch(`${API_BASE}/send-email`, {
         method: 'POST',
         headers: {
@@ -305,7 +327,7 @@ export default function FlowPage() {
           subject: emailSubject,
           include_transcript: includeTranscript,
           original_transcript: includeTranscript ? transcript : null,
-          sender_details: emailData?.senderDetails || null,
+          sender_details: senderDetails,
         }),
       });
       

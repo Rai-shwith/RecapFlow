@@ -114,7 +114,7 @@ class RecapFlowEmailer:
         
         logger.info(f"📤 Starting email send - recipients: {recipient_count}, subject: '{subject}', summary length: {summary_length} chars")
         logger.debug(f"Recipients: {', '.join(recipients)}")
-        
+        logger.info(f'sender_details :{sender_details}')
         try:
             # Create message
             msg = MIMEMultipart()
@@ -246,6 +246,9 @@ class RecapFlowEmailer:
         
         if sender_details.get('phone'):
             details_html += f"<p>Phone: {sender_details['phone']}</p>"
+        
+        if sender_details.get('website'):
+            details_html += f"<p>Website: <a href='{sender_details['website']}'>{sender_details['website']}</a></p>"
         
         return f"""
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;">
