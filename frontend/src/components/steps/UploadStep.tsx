@@ -123,7 +123,7 @@ And when we get investors, coffee’s on me.
 
 Ashwith:
 Deal. Meeting adjourned 🚀`);
-    scrollToTop();
+    // scrollToTop();
   };
 
   return (

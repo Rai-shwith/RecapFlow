@@ -46,7 +46,7 @@ const EditStep = ({
     setIsEditing(true);
     setViewMode('edit');
     setTempSummary(editableSummary);
-    scrollToTop();
+    // scrollToTop();
   };
 
   const handleSave = () => {
@@ -54,14 +54,14 @@ const EditStep = ({
     setIsEditing(false);
     setViewMode('preview');
     onSaveEdit(tempSummary); // Pass the new summary directly
-    scrollToTop();
+    // scrollToTop();
   };
 
   const handleCancel = () => {
     setTempSummary(editableSummary);
     setIsEditing(false);
     setViewMode('preview');
-    scrollToTop();
+    // scrollToTop();
   };
 
   const renderMarkdown = (content: string) => {
