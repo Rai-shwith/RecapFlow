@@ -10,6 +10,8 @@ import time
 import re
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
 from typing import List
 from dotenv import load_dotenv
 
@@ -125,8 +127,12 @@ class RecapFlowEmailer:
             logger.debug("Email headers configured successfully")
             
             # Email body
-            body = self._create_email_body(summary, original_transcript, sender_details)
+            body = self._create_email_body(summary, sender_details)
             msg.attach(MIMEText(body, 'html'))
+            
+            # Add transcript as attachment if provided
+            if original_transcript:
+                self._add_transcript_attachment(msg, original_transcript)
             
             body_size = len(body)
             logger.debug(f"Email body created - size: {body_size} chars, format: HTML")
@@ -160,19 +166,18 @@ class RecapFlowEmailer:
             logger.error(f"❌ Email sending failed after {duration:.2f}s: {str(e)}")
             return False
     
-    def _create_email_body(self, summary: str, original_transcript: str = None, sender_details: dict = None) -> str:
+    def _create_email_body(self, summary: str, sender_details: dict = None) -> str:
         """
-        Create HTML email body with summary and optional transcript
+        Create HTML email body with summary
         
         Args:
             summary (str): The AI-generated summary
-            original_transcript (str, optional): Original transcript
             sender_details (dict, optional): Sender contact information
             
         Returns:
             str: HTML email body
         """
-        logger.debug(f"Creating email body - summary: {len(summary)} chars, transcript: {'included' if original_transcript else 'not included'}, sender details: {'included' if sender_details else 'not included'}")
+        logger.debug(f"Creating email body - summary: {len(summary)} chars, sender details: {'included' if sender_details else 'not included'}")
         
         # Convert markdown summary to HTML
         summary_html = markdown_to_html(summary)
@@ -187,8 +192,6 @@ class RecapFlowEmailer:
             {summary_html}
             
             {self._add_sender_details_section(sender_details) if sender_details else ''}
-            
-            {self._add_transcript_section(original_transcript) if original_transcript else ''}
             
             <div style="border-top:1px solid #ddd; margin:20px 0;"></div>
             <p style="font-size:12px; color:#999;">Sent via RecapFlow</p>
@@ -231,13 +234,24 @@ class RecapFlowEmailer:
         {details_html}
         """
 
-    def _add_transcript_section(self, transcript: str) -> str:
-        """Add original transcript section to email"""
-        logger.debug(f"Adding transcript section - length: {len(transcript)} chars")
-        return f"""
-        <h3>Original Transcript</h3>
-        <p>{transcript.replace(chr(10), '<br>')}</p>
-        """
+    def _add_transcript_attachment(self, msg: MIMEMultipart, transcript: str) -> None:
+        """Add transcript as a text file attachment"""
+        logger.debug(f"Adding transcript attachment - length: {len(transcript)} chars")
+        
+        # Create the attachment
+        attachment = MIMEBase('text', 'plain')
+        attachment.set_payload(transcript.encode('utf-8'))
+        encoders.encode_base64(attachment)
+        
+        # Add header for the attachment
+        attachment.add_header(
+            'Content-Disposition',
+            'attachment; filename="meeting_transcript.txt"'
+        )
+        
+        # Attach to the message
+        msg.attach(attachment)
+        logger.debug("Transcript attachment added successfully")
     
     async def test_email_connection(self) -> bool:
         """
