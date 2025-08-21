@@ -10,6 +10,7 @@ import {
   MdSpeed,
   MdDone
 } from 'react-icons/md';
+import DemoModal from '@/components/DemoModal';
 
 export default function HomePage() {
   const features = [
@@ -96,9 +97,7 @@ export default function HomePage() {
           >
             Start Summarizing <MdArrowForward />
           </Link>
-          <button className="border border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-4 rounded-xl font-medium text-lg transition-colors">
-            View Demo
-          </button>
+          <DemoModal />
         </div>
       </section>
 
