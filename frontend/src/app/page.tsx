@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { 
   MdUpload, 
   MdAutoAwesome, 
@@ -11,6 +12,36 @@ import {
   MdDone
 } from 'react-icons/md';
 import DemoModal from '@/components/DemoModal';
+
+export const metadata: Metadata = {
+  title: "AI Meeting Summarization Tool | RecapFlow",
+  description: "Transform lengthy meeting transcripts into professional summaries in minutes. Upload .txt, .md, or .docx files, generate AI-powered summaries with custom prompts, and share via email with beautiful formatting. Free to use, powered by Google Gemini AI.",
+  keywords: [
+    "meeting summarization tool",
+    "AI transcript analysis",
+    "automated meeting notes",
+    "Google Gemini AI summarization",
+    "meeting productivity software",
+    "transcript to email",
+    "business meeting insights",
+    "AI-powered document processing",
+    "professional meeting summaries",
+    "meeting management platform"
+  ],
+  openGraph: {
+    title: "AI Meeting Summarization Tool | RecapFlow",
+    description: "Transform lengthy meeting transcripts into professional summaries in minutes. Upload files, generate AI summaries, and share via email.",
+    type: "website",
+    url: "https://recapflow.ashwithrai.me",
+  },
+  twitter: {
+    title: "AI Meeting Summarization Tool | RecapFlow",
+    description: "Transform lengthy meeting transcripts into professional summaries in minutes. Free AI-powered tool.",
+  },
+  alternates: {
+    canonical: "https://recapflow.ashwithrai.me",
+  },
+};
 
 export default function HomePage() {
   const features = [
@@ -59,33 +90,34 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <header className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between">
+        <nav className="flex items-center justify-between" role="navigation" aria-label="Main navigation">
           <div className="flex items-center gap-3">
-            <MdAutoGraph className="text-4xl text-blue-600" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <MdAutoGraph className="text-4xl text-blue-600" aria-hidden="true" />
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               RecapFlow
-            </span>
+            </h1>
           </div>
           <Link 
             href="/flow"
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            aria-label="Start using RecapFlow to summarize your meetings"
           >
-            Try Now <MdArrowForward />
+            Try Now <MdArrowForward aria-hidden="true" />
           </Link>
-        </div>
+        </nav>
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+      <section className="container mx-auto px-4 py-16 text-center" aria-labelledby="hero-heading">
+        <h2 id="hero-heading" className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
           Transform Meetings Into
           <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Actionable Insights
           </span>
-        </h1>
+        </h2>
         <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
           AI-powered transcript summarization that turns lengthy meeting notes into concise, 
           professional summaries ready to share via email in minutes.
@@ -94,32 +126,34 @@ export default function HomePage() {
           <Link 
             href="/flow"
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-medium text-lg transition-colors flex items-center justify-center gap-2"
+            aria-label="Start creating AI-powered meeting summaries"
           >
-            Start Summarizing <MdArrowForward />
+            Start Summarizing <MdArrowForward aria-hidden="true" />
           </Link>
           <DemoModal />
         </div>
       </section>
 
       {/* Features */}
-      <section className="container mx-auto px-4 py-16">
+      <section className="container mx-auto px-4 py-16" aria-labelledby="features-heading">
+        <h2 id="features-heading" className="sr-only">Key Features</h2>
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div key={index} className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 text-center">
-              <div className="text-blue-600 mb-4 flex justify-center">
+            <article key={index} className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 text-center">
+              <div className="text-blue-600 mb-4 flex justify-center" aria-hidden="true">
                 {feature.icon}
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
               <p className="text-gray-600">{feature.description}</p>
-            </div>
+            </article>
           ))}
         </div>
       </section>
 
       {/* Workflow Section */}
-      <section className="container mx-auto px-4 py-16">
+      <section className="container mx-auto px-4 py-16" aria-labelledby="workflow-heading">
         <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
+          <h2 id="workflow-heading" className="text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Simple 4-step process to transform your meeting transcripts into professional summaries
           </p>
@@ -127,14 +161,14 @@ export default function HomePage() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {workflowSteps.map((step, index) => (
-            <div key={index} className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 relative">
+            <article key={index} className="bg-white rounded-xl p-6 shadow-lg border border-gray-200 relative">
               {/* Step number */}
-              <div className="absolute -top-4 -left-4 bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold">
+              <div className="absolute -top-4 -left-4 bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-bold" aria-label={`Step ${index + 1}`}>
                 {index + 1}
               </div>
               
               {/* Icon */}
-              <div className="text-blue-600 mb-4">
+              <div className="text-blue-600 mb-4" aria-hidden="true">
                 {step.icon}
               </div>
               
@@ -142,7 +176,7 @@ export default function HomePage() {
               <h3 className="text-xl font-semibold text-gray-900 mb-2">{step.title}</h3>
               <p className="text-gray-600 mb-3">{step.description}</p>
               <p className="text-sm text-blue-600 font-medium">{step.details}</p>
-            </div>
+            </article>
           ))}
         </div>
       </section>
@@ -218,6 +252,6 @@ export default function HomePage() {
           </a>
         </p>
       </footer>
-    </div>
+    </main>
   );
 }
