@@ -1,23 +1,35 @@
+
 # RecapFlow
 
 🔄 **AI-powered transcript summarization and sharing platform**
 
+---
+
+## 🚀 Quick Links
+
+- [Live Website](https://recapflow.ashwithrai.me)
+- [YouTube Tutorial](https://youtu.be/MGnnq_zM0Mw?si=qsmpoGoi6IJRjkqG)
+
+---
+
 ![Home Page](./homepage.png)
+
 ## Overview
 
-RecapFlow is a full-stack application that helps users upload meeting transcripts, generate AI-powered summaries with custom prompts, and share them via email. Built with React frontend, FastAPI backend, and powered by LangChain + Gemini AI.
+RecapFlow is a full-stack application that helps users upload meeting transcripts, generate AI-powered summaries with custom prompts, and share them via email. Built with Next.js frontend, FastAPI backend, and powered by LangChain + Gemini AI.
+
 
 ## 🏗️ Project Structure
 
 ```
 RecapFlow/
-├── frontend/              # React + Vite + Tailwind CSS
+├── frontend/              # Next.js + Tailwind CSS
 │   ├── src/
+│   │   ├── app/           # Next.js app directory (pages, layouts)
 │   │   ├── components/    # Reusable UI components
 │   │   ├── config/        # Environment configuration
-│   │   ├── hooks/         # Custom React hooks
 │   │   ├── utils/         # Utility functions
-│   │   └── App.jsx        # Main application component
+│   ├── public/            # Static assets (logo, favicon, etc.)
 │   ├── .env.example       # Frontend environment template
 │   ├── .env               # Frontend environment variables (git-ignored)
 │   ├── package.json
@@ -27,7 +39,6 @@ RecapFlow/
 │   ├── main.py           # FastAPI app entrypoint
 │   ├── routes.py         # API route definitions
 │   ├── ai.py             # Handles Gemini AI calls
-│   ├── email_service.py  # Handles sending results via SMTP
 │   ├── emailer.py        # Email service wrapper
 │   ├── .env.example      # Backend environment template
 │   ├── .env              # Backend environment variables (git-ignored)
@@ -50,7 +61,6 @@ RecapFlow/
 2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
-   pip freeze > requirements.txt  # Lock versions
    ```
 
 3. **Configure environment:**
@@ -61,12 +71,10 @@ RecapFlow/
 
 4. **Run the server:**
    ```bash
-   python main.py
-   # OR
    uvicorn main:app --reload
    ```
 
-### Frontend Setup
+### Frontend Setup (Next.js)
 
 1. **Install dependencies:**
    ```bash
@@ -84,7 +92,6 @@ RecapFlow/
    ```bash
    npm run dev
    ```
-
 ## 🔧 Environment Variables
 
 ### Backend Configuration
@@ -98,37 +105,25 @@ Copy `backend/.env.example` to `backend/.env` and fill in your credentials:
 - `API_PORT` - Backend server port (default: 8000)
 - `FRONTEND_URL` - Frontend URL for CORS (default: http://localhost:5173)
 
+
 ### Frontend Configuration
 
 Copy `frontend/.env.example` to `frontend/.env` and configure:
 
-- `VITE_API_BASE_URL` - Backend API URL (default: http://localhost:8000)
-- `VITE_APP_NAME` - Application name (default: RecapFlow)
-- `VITE_APP_VERSION` - Application version
-- `VITE_NODE_ENV` - Environment mode (development/production)
-
-## 📋 Development Roadmap
-
-- [x] **Phase 1**: Project scaffolding and basic setup
-- [x] **Phase 2**: Backend FastAPI server with health checks
-- [x] **Phase 3**: Frontend React app with backend integration
-- [x] **Phase 4**: SMTP email sending implementation
-- [x] **Phase 5**: AI integration (LangChain + Gemini API)
-- [x] **Phase 6**: Backend routes for AI summarization
-- [x] **Phase 7**: Complete frontend UI for transcript upload and sharing
-- [x] **Phase 8**: Toast notifications and enhanced UX
-- [x] **Phase 9**: Modular component architecture
-- [x] **Phase 10**: Environment configuration and deployment prep
+- `NEXT_PUBLIC_API_BASE_URL` - Backend API URL (default: http://localhost:8000)
+- `NEXT_PUBLIC_APP_NAME` - Application name (default: RecapFlow)
+- `NEXT_PUBLIC_APP_VERSION` - Application version
+- `NODE_ENV` - Environment mode (development/production)
 
 ## 🛠️ Tech Stack
 
+
 **Frontend:**
+- Next.js 15 (App Router)
 - React 18 with Hooks and Context
-- Vite for fast development and building
 - Tailwind CSS for responsive styling
 - React Icons for consistent iconography
 - React Hot Toast for notifications
-- Axios for API communication
 - Modular component architecture
 - Environment-based configuration
 
@@ -140,8 +135,9 @@ Copy `frontend/.env.example` to `frontend/.env` and configure:
 - Structured logging and error handling
 - Environment-based configuration
 
+
 **Development:**
-- Hot reloading (Vite + FastAPI)
+- Hot reloading (Next.js + FastAPI)
 - Environment-based configuration
 - Modular AI workflows
 
@@ -173,4 +169,12 @@ This is a development project. Follow the development order outlined in the road
 
 ---
 
+
 **Current Status:** ✅ **Production Ready** - Full-featured application with comprehensive UI/UX
+
+---
+
+## 📺 Demo & Tutorial
+
+- [Watch the YouTube Tutorial](https://youtu.be/MGnnq_zM0Mw?si=qsmpoGoi6IJRjkqG)
+- [Try the Live Website](https://recapflow.vercel.app)
