@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: recapflow-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install uv && uv pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: OPEN_ROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODELS
+        value: openrouter/free,google/gemma-4-26b-a4b-it:free,qwen/qwen3.8-27b:free
+      - key: OPENROUTER_SORT_BY
+        value: throughput
+      - key: OPENROUTER_PARTITION
+        value: none
+      - key: OPENROUTER_TIMEOUT
+        value: "45.0"
+      - key: FRONTEND_URL
+        sync: false
+      - key: SMTP_SERVER
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: EMAIL_ADDRESS
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false

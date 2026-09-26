@@ -45,6 +45,7 @@ router = APIRouter()
 class SummarizeRequest(BaseModel):
     transcript: str
     custom_prompt: Optional[str] = None
+    models: Optional[List[str]] = None
 
 class EmailRequest(BaseModel):
     recipients: List[str]
@@ -57,32 +58,52 @@ class EmailRequest(BaseModel):
 class RephraseRequest(BaseModel):
     summary: str
     style: str = "professional"
+    models: Optional[List[str]] = None
+
+def get_ai_service() -> RecapFlowAI:
+    global ai_service
+    if ai_service is None:
+        try:
+            ai_service = RecapFlowAI()
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize AI service: {e}")
+            raise HTTPException(status_code=500, detail=f"AI service initialization failed: {str(e)}")
+    return ai_service
+
+def get_email_service() -> RecapFlowEmailer:
+    global email_service
+    if email_service is None:
+        try:
+            email_service = RecapFlowEmailer()
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize Email service: {e}")
+            raise HTTPException(status_code=500, detail=f"Email service initialization failed: {str(e)}")
+    return email_service
 
 @router.post("/summarize")
 async def summarize_transcript(request: SummarizeRequest):
     """
-    Generate AI summary of transcript
+    Generate AI summary of transcript using OpenRouter fallback models
     """
     logger.info(f"🤖 Summarization request received - transcript length: {len(request.transcript)} chars")
-    
-    if not ai_service:
-        logger.error("❌ AI service not initialized")
-        raise HTTPException(status_code=500, detail="AI service not initialized")
+    service = get_ai_service()
     
     try:
         start_time = datetime.now()
-        summary = await ai_service.summarize_transcript(
+        summary, model_used = await service.summarize_transcript(
             transcript=request.transcript,
-            custom_prompt=request.custom_prompt
+            custom_prompt=request.custom_prompt,
+            models=request.models
         )
         end_time = datetime.now()
         processing_time = (end_time - start_time).total_seconds()
         
-        logger.info(f"✅ Summarization completed in {processing_time:.2f}s - summary length: {len(summary)} chars")
+        logger.info(f"✅ Summarization completed in {processing_time:.2f}s by {model_used} - summary length: {len(summary)} chars")
         
         return {
             "success": True,
             "summary": summary,
+            "model_used": model_used,
             "original_length": len(request.transcript),
             "summary_length": len(summary),
             "processing_time": processing_time
@@ -93,27 +114,26 @@ async def summarize_transcript(request: SummarizeRequest):
 
 @router.post("/rephrase")
 async def rephrase_summary(request: RephraseRequest):
-    """Rephrase summary in different style"""
+    """Rephrase summary in different style using OpenRouter fallback models"""
     logger.info(f"✏️ Rephrase request received - style: {request.style}, text length: {len(request.summary)} chars")
-    
-    if not ai_service:
-        logger.error("❌ AI service not initialized")
-        raise HTTPException(status_code=500, detail="AI service not initialized")
+    service = get_ai_service()
     
     try:
         start_time = datetime.now()
-        rephrased = await ai_service.rephrase_summary(
+        rephrased, model_used = await service.rephrase_summary(
             summary=request.summary,
-            style=request.style
+            style=request.style,
+            models=request.models
         )
         end_time = datetime.now()
         processing_time = (end_time - start_time).total_seconds()
         
-        logger.info(f"✅ Rephrasing completed in {processing_time:.2f}s - new length: {len(rephrased)} chars")
+        logger.info(f"✅ Rephrasing completed in {processing_time:.2f}s by {model_used} - new length: {len(rephrased)} chars")
         
         return {
             "success": True,
             "rephrased_summary": rephrased,
+            "model_used": model_used,
             "style": request.style,
             "processing_time": processing_time
         }
@@ -127,14 +147,11 @@ async def send_summary_email(request: EmailRequest):
     Send summary via email to recipients
     """
     logger.info(f"📧 Email request received - recipients: {len(request.recipients)}, subject: {request.subject}")
-    
-    if not email_service:
-        logger.error("❌ Email service not initialized")
-        raise HTTPException(status_code=500, detail="Email service not initialized")
+    service = get_email_service()
     
     try:
         start_time = datetime.now()
-        success = await email_service.send_summary_email(
+        success = await service.send_summary_email(
             recipients=request.recipients,
             summary=request.summary,
             subject=request.subject,

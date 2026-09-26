@@ -14,9 +14,7 @@
 
 ![Home Page](./homepage.png)
 
-## Overview
-
-RecapFlow is a full-stack application that helps users upload meeting transcripts, generate AI-powered summaries with custom prompts, and share them via email. Built with Next.js frontend, FastAPI backend, and powered by LangChain + Gemini AI.
+RecapFlow is a full-stack application that helps users upload meeting transcripts, generate AI-powered summaries with custom prompts, and share them via email. Built with Next.js frontend, FastAPI backend, and powered by OpenRouter AI (with auto-routing and multi-model fallback) deployed on Render.com.
 
 
 ## 🏗️ Project Structure
@@ -51,27 +49,22 @@ RecapFlow/
 
 ### Backend Setup
 
-1. **Create virtual environment:**
+1. **Create virtual environment & install dependencies with `uv`:**
    ```bash
    cd backend
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   uv venv
+   uv pip install -r requirements.txt
    ```
 
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configure environment:**
+2. **Configure environment:**
    ```bash
    cp .env.example .env
-   # Edit .env with your API keys and credentials
+   # Edit .env with your OPEN_ROUTER_API_KEY and credentials
    ```
 
-4. **Run the server:**
+3. **Run the server:**
    ```bash
-   uvicorn main:app --reload
+   uv run uvicorn main:app --reload
    ```
 
 ### Frontend Setup (Next.js)
@@ -92,18 +85,36 @@ RecapFlow/
    ```bash
    npm run dev
    ```
+
+## 🚀 Deployment to Render.com
+
+This project includes a declarative Render Blueprint ([render.yaml](render.yaml)).
+
+1. Push this repository to GitHub/GitLab.
+2. In the [Render Dashboard](https://dashboard.render.com), click **New +** -> **Blueprint**.
+3. Select your repository and Render will automatically detect `render.yaml`.
+4. Fill in the required environment variables:
+   - `OPEN_ROUTER_API_KEY`: Your OpenRouter API key.
+   - `FRONTEND_URL`: URL of your deployed frontend (for CORS).
+   - `SMTP_SERVER`, `EMAIL_ADDRESS`, `EMAIL_PASSWORD`: For email dispatch.
+5. Click **Apply** to deploy!
+
 ## 🔧 Environment Variables
 
 ### Backend Configuration
 
 Copy `backend/.env.example` to `backend/.env` and fill in your credentials:
 
-- `GOOGLE_API_KEY` - Your Gemini API key
+- `OPEN_ROUTER_API_KEY` - Your OpenRouter API key (e.g. `sk-or-v1-...`)
+- `OPENROUTER_MODELS` - Comma-separated fallback chain (default: `openrouter/free,google/gemma-4-26b-a4b-it:free,qwen/qwen3.8-27b:free,nvidia/nemotron-3.5-lightning:free`)
+- `OPENROUTER_SORT_BY` - Provider sorting strategy (`throughput`, `latency`, `price`)
+- `OPENROUTER_PARTITION` - Routing partition (`none` for global endpoint sorting across models, `model` for per-model)
+- `OPENROUTER_TIMEOUT` - Timeout in seconds (default: 45.0)
 - `EMAIL_ADDRESS` - Gmail account for sending summaries
 - `EMAIL_PASSWORD` - App password for Gmail SMTP
 - `API_HOST` - Backend server host (default: 0.0.0.0)
 - `API_PORT` - Backend server port (default: 8000)
-- `FRONTEND_URL` - Frontend URL for CORS (default: http://localhost:5173)
+- `FRONTEND_URL` - Frontend URL for CORS (default: http://localhost:3000)
 
 
 ### Frontend Configuration
